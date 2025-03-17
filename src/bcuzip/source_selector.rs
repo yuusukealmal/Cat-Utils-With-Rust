@@ -2,20 +2,24 @@ use dirs::download_dir;
 use rfd::FileDialog;
 use std::path::PathBuf;
 
-pub fn selectfile() -> Option<PathBuf> {
-    let file = FileDialog::new()
-        .set_directory(download_dir().unwrap())
-        .add_filter("BCUZIP files", &["bcuzip"])
-        .pick_file();
+fn file_dialog(pick_file: bool) -> Option<PathBuf> {
+    let mut dialog = FileDialog::new();
 
-    file
+    if let Some(dir) = download_dir() {
+        dialog = dialog.set_directory(dir);
+    }
+
+    if pick_file {
+        dialog.add_filter("BCUZIP files", &["bcuzip"]).pick_file()
+    } else {
+        dialog.pick_folder()
+    }
+}
+
+pub fn selectfile() -> Option<PathBuf> {
+    file_dialog(true)
 }
 
 pub fn selectfolder() -> Option<PathBuf> {
-    let folder = FileDialog::new()
-        .set_directory(download_dir().unwrap())
-        .add_filter("BCUZIP files", &["bcuzip"])
-        .pick_folder();
-
-    folder
+    file_dialog(false)
 }

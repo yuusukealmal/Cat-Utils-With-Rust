@@ -26,74 +26,67 @@ pub mod length_count {
     use crate::bcuzip::write::write_functions::{write_file, write_info};
 
     fn cnt_length(fp: &str) -> Result<BCUZIP, std::io::Error> {
-        let mut length_buffer: [u8; 4] = [0; 4];
-        let mut file: File = File::open(fp)?;
+        let mut file = File::open(fp)?;
+        let mut buffer = vec![0; 0x24];
 
-        file.seek(SeekFrom::Start(0x20))?;
-        file.read(&mut length_buffer)?;
+        file.read_exact(&mut buffer)?;
 
-        let length: u32 = u32::from_le_bytes(length_buffer);
-        let pad: u32 = 16 * (length / 16 + 1);
+        let length = u32::from_le_bytes(buffer[0x20..0x24].try_into().unwrap());
+        let pad = 16 * (length / 16 + 1);
 
-        let datalength: u64 = 0x24 + pad as u64;
-        let file_len: u64 = file.seek(SeekFrom::End(0))?;
-        let mut data_buffer: Vec<u8> = vec![0; file_len as usize - datalength as usize];
+        let datalength = 0x24 + pad as u64;
+        let file_len = file.metadata()?.len();
+        let mut data_buffer = vec![0; (file_len - datalength) as usize];
 
         file.seek(SeekFrom::Start(datalength))?;
-        file.read(&mut data_buffer)?;
+        file.read_exact(&mut data_buffer)?;
 
-        let mut key_buffer: [u8; 16] = [0; 16];
-        file.seek(SeekFrom::Start(0x10))?;
-        file.read(&mut key_buffer)?;
+        let key_buffer = <[u8; 16]>::try_from(&buffer[0x10..0x20]).unwrap();
 
-        let hash = md5::compute("battlecatsultimate".as_bytes());
-        let mut iv: [u8; 16] = [0; 16];
-        iv.copy_from_slice(&hash[..16]);
+        let hash = md5::compute(b"battlecatsultimate");
+        let iv = <[u8; 16]>::try_from(&hash[..16]).unwrap();
 
-        let mut info_buffer = [];
-        file.seek(SeekFrom::Start(0x20))?;
-        file.read(&mut info_buffer)?;
-
-        let zip = BCUZIP {
-            title: String::from(""),
-            length: length,
-            pad: pad,
+        Ok(BCUZIP {
+            title: String::new(),
+            length,
+            pad,
             data: data_buffer,
             key: key_buffer,
-            iv: iv,
-        };
-
-        Ok(zip)
+            iv,
+        })
     }
 
     pub fn parse_file(fp: &str, dest: &str) -> Result<(), std::io::Error> {
         let mut zip = cnt_length(fp)?;
         let mut file = File::open(fp)?;
 
-        let info = write_info(&zip, &mut file, dest)?;
+        let info_str = write_info(&zip, &mut file, dest)?;
+        let info: serde_json::Value = serde_json::from_str(&info_str).map_err(|_| {
+            std::io::Error::new(std::io::ErrorKind::InvalidData, "JSON parse error")
+        })?;
 
-        let info: serde_json::Value = serde_json::from_str(&info)?;
-
-        if Some(info["desc"]["id"].as_str()) != None {
-            zip.title = info["desc"]["id"].as_str().unwrap().to_string();
-        } else {
-            zip.title = info["desc"]["names"]["dat"][0]["val"]
-                .as_str()
-                .unwrap()
-                .to_string();
-        }
+        zip.title = info["desc"]["id"]
+            .as_str()
+            .or_else(|| info["desc"]["names"]["dat"][0]["val"].as_str())
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| "Unknown".to_string());
 
         create_dir(&format!("{}/{}", dest, zip.title))?;
 
-        for i in info["files"].as_array().unwrap() {
-            let obj = i.as_object().unwrap();
-            let f = Files {
-                offset: obj["offset"].as_u64().unwrap() as u32,
-                path: obj["path"].as_str().unwrap().to_string(),
-                size: obj["size"].as_u64().unwrap() as u32,
-            };
+        for i in info["files"].as_array().unwrap_or(&vec![]) {
+            if let Some(obj) = i.as_object() {
+                let f = Files {
+                    offset: obj.get("offset").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
+                    path: obj
+                        .get("path")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string(),
+                    size: obj.get("size").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
+                };
 
-            write_file(&zip, &f, dest)?;
+                write_file(&zip, &f, dest)?;
+            }
         }
 
         Ok(())

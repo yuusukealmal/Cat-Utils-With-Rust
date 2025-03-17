@@ -1,14 +1,11 @@
 pub mod aes {
-    use std::result::Result;
-
+    use crate::bcuzip::file_parser::BCUZIP;
     use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
     use crypto::{aes, blockmodes, buffer, symmetriccipher};
 
-    use crate::bcuzip::file_parser::BCUZIP;
-
     pub fn aes_pack(
         zip: &BCUZIP,
-        length: u32,
+        length: usize,
         data: &[u8],
     ) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
         let mut decryptor = aes::cbc_decryptor(
@@ -18,25 +15,21 @@ pub mod aes {
             blockmodes::NoPadding,
         );
 
-        let mut final_result = Vec::<u8>::new();
+        let mut final_result = Vec::with_capacity(data.len());
         let mut read_buffer = buffer::RefReadBuffer::new(data);
-        let mut buffer = [0; 4096];
+        let mut buffer = [0u8; 4096];
         let mut write_buffer = buffer::RefWriteBuffer::new(&mut buffer);
 
-        loop {
-            let result = decryptor.decrypt(&mut read_buffer, &mut write_buffer, true);
-
+        while let Ok(status) = decryptor.decrypt(&mut read_buffer, &mut write_buffer, true) {
             final_result.extend(write_buffer.take_read_buffer().take_remaining());
-            match result {
-                Ok(BufferResult::BufferUnderflow) => break,
-                Ok(BufferResult::BufferOverflow) => {}
-                Err(e) => {
-                    return Err(e);
-                }
+            if matches!(status, BufferResult::BufferUnderflow) {
+                break;
             }
         }
 
-        let r = &final_result[0..length as usize];
-        Ok(r.to_vec())
+        let result_length = length.min(final_result.len());
+        final_result.truncate(result_length);
+
+        Ok(final_result)
     }
 }
