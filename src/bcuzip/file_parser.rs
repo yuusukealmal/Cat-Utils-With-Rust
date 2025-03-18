@@ -1,4 +1,3 @@
-#[derive(Debug)]
 pub struct BCUZIP {
     pub title: String,
     pub length: u32,
@@ -8,7 +7,6 @@ pub struct BCUZIP {
     pub iv: [u8; 16],
 }
 
-#[derive(Debug)]
 pub struct Files {
     pub offset: u32,
     pub path: String,
@@ -22,8 +20,8 @@ pub mod length_count {
     use std::result::Result;
 
     use super::{Files, BCUZIP};
-    use crate::bcuzip::write::base_functions::create_dir;
     use crate::bcuzip::write::write_functions::{write_file, write_info};
+    use crate::functions::writer::create_dir;
 
     fn cnt_length(fp: &str) -> Result<BCUZIP, std::io::Error> {
         let mut file = File::open(fp)?;

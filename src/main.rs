@@ -1,10 +1,12 @@
-use crate::bcuzip::source_selector;
+use bcuzip::file_parser::length_count;
+use bcuzip::file_select;
 
 mod bcuzip;
+mod functions;
 
-fn main() {
-    let file = source_selector::selectfile();
-    let dest = source_selector::selectfolder();
+async fn main() {
+    let file = file_select::selectfile();
+    let dest = file_select::selectfolder();
 
     match (file, dest) {
         (Some(file_path), Some(dest_path)) => {

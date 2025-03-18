@@ -1,22 +1,3 @@
-pub mod base_functions {
-    use std::fs::File;
-    use std::io::prelude::*;
-    use std::io::Result;
-
-    pub fn create_dir(path: &str) -> Result<()> {
-        std::fs::create_dir_all(path)?;
-
-        Ok(())
-    }
-
-    pub fn create_file(data: &[u8], filename: &str) -> Result<()> {
-        let mut file = File::create(filename)?;
-        file.write_all(data)?;
-
-        Ok(())
-    }
-}
-
 pub mod write_functions {
     use std::fs::File;
     use std::io::Result;
@@ -25,9 +6,9 @@ pub mod write_functions {
 
     use serde_json;
 
-    use super::base_functions::{create_dir, create_file};
     use crate::bcuzip::aes_decrypt::aes;
     use crate::bcuzip::file_parser::{Files, BCUZIP};
+    use crate::functions::writer::{create_dir, create_file};
 
     pub fn write_info(zip: &BCUZIP, file: &mut File, dest: &str) -> Result<String> {
         let mut info_buffer = vec![0; zip.pad as usize];
@@ -74,4 +55,3 @@ pub mod write_functions {
         Ok(())
     }
 }
-// self.data[offset:offset + mod]
