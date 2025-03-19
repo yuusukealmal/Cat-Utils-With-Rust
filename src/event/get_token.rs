@@ -5,7 +5,6 @@ use serde_json::json;
 use sha2::Sha256;
 
 use crate::functions::utils::{generate_random_hash, get_timestamp};
-use crate::functions::writer::create_file;
 
 pub struct EventData {
     pub account_code: Option<String>,
@@ -60,7 +59,7 @@ impl EventData {
             .await
     }
 
-    async fn generate_account(&mut self) -> reqwest::Result<()> {
+    pub async fn generate_account(&mut self) -> reqwest::Result<()> {
         let account_json: serde_json::Value = reqwest::get(
             "https://nyanko-backups.ponosgames.com/?action=createAccount&referenceId=",
         )
@@ -101,7 +100,7 @@ impl EventData {
         Ok(())
     }
 
-    async fn generate_jwtoken(&mut self) -> reqwest::Result<()> {
+    pub async fn generate_jwtoken(&mut self) -> reqwest::Result<()> {
         if self.account_code.is_none() || self.password.is_none() {
             return Ok(());
         }
@@ -139,28 +138,6 @@ impl EventData {
         if jwt_json["statusCode"] == 1 {
             self.jwt_token = jwt_json["payload"]["token"].as_str().map(String::from);
         }
-        Ok(())
-    }
-
-    pub async fn to_file(
-        &mut self,
-        output_path: String,
-        cc: &str,
-        file: &str,
-    ) -> Result<(), std::io::Error> {
-        self.generate_account().await.ok();
-        self.generate_jwtoken().await.ok();
-
-        let cc_suffix = if cc == "jp" { "" } else { cc };
-        let url = format!(
-            "https://nyanko-events.ponosgames.com/battlecats{cc_suffix}_production/{file}.tsv?jwt={}",
-            self.jwt_token.as_deref().unwrap_or("")
-        );
-
-        let data = reqwest::get(&url).await.unwrap().text().await.unwrap();
-        let file_path = format!("{}\\{}_{}.tsv", output_path, cc.to_uppercase(), file);
-        create_file(data.as_bytes(), &file_path)?;
-
         Ok(())
     }
 }
