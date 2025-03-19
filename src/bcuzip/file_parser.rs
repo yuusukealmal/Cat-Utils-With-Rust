@@ -1,12 +1,3 @@
-pub struct BCUZIP {
-    pub title: String,
-    pub length: u32,
-    pub pad: u32,
-    pub data: Vec<u8>,
-    pub key: [u8; 16],
-    pub iv: [u8; 16],
-}
-
 pub struct Files {
     pub offset: u32,
     pub path: String,
@@ -19,8 +10,8 @@ pub mod length_count {
     use std::io::{Read, Seek, SeekFrom};
     use std::result::Result;
 
-    use super::{Files, BCUZIP};
-    use crate::bcuzip::write::write_functions::{write_file, write_info};
+    use super::Files;
+    use crate::bcuzip::write::BCUZIP;
     use crate::functions::writer::create_dir;
 
     fn cnt_length(fp: &str) -> Result<BCUZIP, std::io::Error> {
@@ -58,7 +49,7 @@ pub mod length_count {
         let mut zip = cnt_length(fp)?;
         let mut file = File::open(fp)?;
 
-        let info_str = write_info(&zip, &mut file, dest)?;
+        let info_str = BCUZIP::write_info(&zip, &mut file, dest)?;
         let info: serde_json::Value = serde_json::from_str(&info_str).map_err(|_| {
             std::io::Error::new(std::io::ErrorKind::InvalidData, "JSON parse error")
         })?;
@@ -83,7 +74,7 @@ pub mod length_count {
                     size: obj.get("size").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                 };
 
-                write_file(&zip, &f, dest)?;
+                BCUZIP::write_file(&zip, &f, dest)?;
             }
         }
 

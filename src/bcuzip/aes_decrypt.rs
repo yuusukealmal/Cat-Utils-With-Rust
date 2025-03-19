@@ -1,17 +1,18 @@
-pub mod aes {
-    use crate::bcuzip::file_parser::BCUZIP;
-    use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
-    use crypto::{aes, blockmodes, buffer, symmetriccipher};
+use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
+use crypto::{aes, blockmodes, buffer, symmetriccipher};
 
+use crate::bcuzip::write::BCUZIP;
+
+impl BCUZIP {
     pub fn aes_pack(
-        zip: &BCUZIP,
+        &self,
         length: usize,
         data: &[u8],
     ) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
         let mut decryptor = aes::cbc_decryptor(
             aes::KeySize::KeySize128,
-            &zip.key,
-            &zip.iv,
+            &self.key,
+            &self.iv,
             blockmodes::NoPadding,
         );
 
