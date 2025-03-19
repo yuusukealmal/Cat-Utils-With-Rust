@@ -2,23 +2,23 @@ use std::io;
 
 use bcuzip::file_parser::length_count;
 use bcuzip::file_select;
-use event::handle;
 
 mod bcuzip;
 mod event;
 mod functions;
+mod placement;
 
 #[tokio::main]
 async fn main() {
     loop {
         let mut input = String::new();
-        println!("請選擇項目: \n1. 獲得活動檔案\n2. 解密bcuzip\n3. 退出");
+        println!("請選擇項目: \n1. 獲得活動檔案\n2. 解密bcuzip\n3. 取得公告\n4. 退出");
         io::stdin().read_line(&mut input).expect("讀取失敗");
         let number: u32 = input.trim().parse().expect("輸入錯誤");
 
         match number {
             1 => {
-                handle::get_data().await;
+                event::handle::get_data().await;
                 println!("活動檔案下載完成");
             }
             2 => {
@@ -40,6 +40,10 @@ async fn main() {
                 println!("解密完成");
             }
             3 => {
+                let _ = placement::handle::get_announcement().await;
+                println!("公告下載完成");
+            }
+            4 => {
                 println!("謝謝使用");
                 break;
             }
