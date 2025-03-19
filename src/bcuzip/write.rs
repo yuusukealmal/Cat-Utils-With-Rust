@@ -62,5 +62,4 @@ impl BCUZIP {
 
         Ok(())
     }
-
 }
