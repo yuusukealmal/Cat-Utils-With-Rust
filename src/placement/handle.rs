@@ -15,11 +15,11 @@ pub async fn get_announcement() -> Result<(), std::io::Error> {
             .await
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
-        let json = serde_json::to_string_pretty(
-            &serde_json::from_str::<serde_json::Value>(&result)?,
-        )?;
+        let json =
+            serde_json::to_string_pretty(&serde_json::from_str::<serde_json::Value>(&result)?)?;
 
-        let path = PathBuf::from(&output_path).join(format!("{cc}_placement.json"));
+        let path =
+            PathBuf::from(&output_path).join(format!("{}_placement.json", cc.to_uppercase()));
         create_file(json.as_bytes(), &path.to_string_lossy())?;
     }
 
