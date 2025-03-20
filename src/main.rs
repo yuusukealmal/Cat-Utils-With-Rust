@@ -22,7 +22,7 @@ async fn main() {
         match number {
             1 => {
                 event::handle::get_data().await;
-                println!("活動檔案下載完成");
+                println!("\n活動檔案下載完成\n");
             }
             2 => {
                 let file = file_select::selectfile();
@@ -40,22 +40,22 @@ async fn main() {
                     }
                 }
 
-                println!("解密完成");
+                println!("\n解密完成\n");
             }
             3 => {
                 let _ = placement::handle::get_announcement().await;
-                println!("公告下載完成");
+                println!("\n公告下載完成\n");
             }
             4 => {
                 let seed = seed::handle::get_seed().await;
-                println!("取得種子碼: {}", seed.unwrap());
+                println!("\n取得種子碼: {}\n", seed.unwrap());
             }
             5 => {
-                println!("謝謝使用");
+                println!("\n謝謝使用");
                 break;
             }
             _ => {
-                eprintln!("Error: Invalid input.");
+                eprintln!("\nError: Invalid input.\n");
             }
         }
     }
