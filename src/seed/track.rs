@@ -57,10 +57,10 @@ impl SaveParser {
     fn seek_var(&mut self) -> u32 {
         let mut i = 0;
         for _ in 0..4 {
-            let i3 = i << 7;
-            let read = self.seek(1);
-            i = i3 | (read & 127);
-            if (read & 128) == 0 {
+            let shift = i << 7;
+            let val = self.seek(1);
+            i = shift | (val & 127);
+            if (val & 128) == 0 {
                 return i;
             }
         }
@@ -80,10 +80,10 @@ impl SaveParser {
 
         self.seek(15);
 
-        let old_address = self.address;
-        let new_address = self.find_date();
-        self.set_address(old_address);
-        self.seek(new_address - old_address);
+        let oldadd = self.address;
+        let newadd = self.find_date();
+        self.set_address(oldadd);
+        self.seek(newadd - oldadd);
 
         if dst == None {
             dst = Some(self.get_dst(self.address + 118));
@@ -94,101 +94,67 @@ impl SaveParser {
             self.seek(1);
         }
 
-        self.get_data(4, 4, Some(3));
-        self.seek(12);
+        self.seek(73);
 
-        self.get_data(4, 4, Some(12));
-        self.seek(1);
-
-        let slot_multiplier = self.seek(1) as usize;
-        self.get_data(1, 4, Some(slot_multiplier * 10));
-        self.seek(4);
-        self.get_data(4, 4, Some(30));
-
-        self.seek(8);
-        self.get_data(4, 4, Some(10));
-
-        for _ in 0..10 {
-            self.seek(4);
-        }
-
-        for _ in 0..10 {
-            for _ in 0..51 {
-                self.seek(4);
-            }
-        }
-
-        for _ in 0..10 {
-            for _ in 0..49 {
-                self.seek(4);
-            }
-        }
+        let val = self.seek(1) as usize;
+        self.seek(val * 40 + 4212);
 
         let data = self.get_data(4, 4, None);
         if data.is_empty() {
-            return self.parse_save(Some(!dst.unwrap()));
+            return self.parse_save(Some(!dst.unwrap_or(false)));
         }
 
         self.get_data(4, 4, None);
 
-        let cat_upgrades_multiplier = self.seek(4) as usize;
-        self.get_data(4, 2, Some(cat_upgrades_multiplier * 2));
+        let val = self.seek(4) as usize;
+        self.get_data(4, 2, Some(val * 2));
         self.get_data(4, 4, None);
-        self.get_data(4, 2, Some(11 * 2));
+        self.seek(44);
         self.get_data(4, 4, None);
         self.get_data(4, 4, None);
-        self.get_data(4, 4, Some(6));
+        self.seek(24);
         self.get_data(4, 4, None);
 
-        self.seek(4);
-        self.get_data(4, 4, Some(21));
-        self.seek(1);
-        self.get_data(1, 1, Some(6));
+        self.seek(95);
 
         self.get_time_stamp(dst);
-        self.get_data(4, 4, Some(50));
+        self.seek(200);
         self.get_time_stamp(dst);
-        self.seek(6 * 4);
+        self.seek(24);
 
         self.get_data(4, 1, None);
 
-        let length1 = self.seek_var();
-        for _ in 0..length1 {
+        let val = self.seek_var();
+        for _ in 0..val {
             self.seek_var();
             self.seek_var();
         }
-        let length2 = self.seek_var();
-        for _ in 0..length2 {
+        let val = self.seek_var();
+        for _ in 0..val {
             self.seek_var();
             self.seek(1);
         }
-        self.get_data(4, 4, Some(4));
-        self.seek(8);
-        self.get_data(4, 4, None);
-        self.get_data(4, 4, Some(10));
 
-        let mut len = self.seek(2);
-        if len != 128 {
+        self.seek(24);
+        self.get_data(4, 4, None);
+        self.seek(40);
+
+        let mut val = self.seek(2);
+        if val != 128 {
             self.set_address(self.address - 2);
-            len = 100;
+            val = 100;
         }
 
-        self.get_data(2, 4, Some(len as usize));
-        self.get_data(2, 4, Some(len as usize));
+        self.seek(val as usize * 8);
 
-        let unknown_val = self.seek(1);
-        let total_count = self.seek(2) * unknown_val;
-        let star_count = self.seek(1);
-        let stage_count = self.seek(1);
-        self.get_data(1, 1, Some((total_count * star_count) as usize));
-        self.get_data(1, 1, Some((total_count * star_count) as usize));
-        self.get_data(
-            1,
-            2,
-            Some((total_count * stage_count * star_count) as usize),
-        );
-        self.get_data(1, 1, Some((total_count * star_count) as usize));
-        self.get_data(4, 4, Some(38));
+        let val = self.seek(1);
+        let a = self.seek(2) * val;
+        let b = self.seek(1);
+        let c = self.seek(1);
+        self.seek((a * b) as usize * 2);
+        self.seek((a * c * b)as usize *2);
+        self.seek((a * b) as usize);
+        self.seek(152);
         self.get_data(4, 4, None);
 
         let seed = self.seek(4);

@@ -3,17 +3,12 @@ use serde_json::{json, Value};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn zfill(version: &str) -> u32 {
-    let mut res = String::new();
-    let v = version.split(".");
-
-    for i in v {
-        if i.len() == 1 {
-            res.push('0');
-        }
-        res.push_str(i);
-    }
-
-    res.parse().unwrap()
+    version
+        .split('.')
+        .map(|x| format!("{:02}", x.parse::<u8>().expect("Invalid version part")))
+        .collect::<String>()
+        .parse()
+        .expect("Failed to parse version")
 }
 
 pub fn generate_random_hash(length: usize) -> String {
@@ -60,7 +55,6 @@ pub fn get_random_device() -> Value {
         }),
     ];
 
-    let mut rng = rand::rng();
-    let random_index = rng.random_range(0..devices.len());
+    let random_index = rand::rng().random_range(0..devices.len());
     devices[random_index].clone()
 }

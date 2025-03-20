@@ -16,7 +16,11 @@ pub async fn get_save(
     let random_hex = utils::generate_random_hash(32);
     let random_device = utils::get_random_device();
 
-    let country_code = if cc == "jp" { "ja" } else { cc };
+    let country_code = match cc {
+        "jp" => "ja",
+        other => other,
+    };
+
     let data = json!({
         "clientInfo": {
             "client": { "countryCode": country_code, "version": version },
@@ -35,10 +39,10 @@ pub async fn get_save(
         random_device["User-Agent"].to_string().parse().unwrap(),
     );
 
+    let url = format!("https://nyanko-save.ponosgames.com/v2/transfers/{account}/reception");
+
     let response = client
-        .post(format!(
-            "https://nyanko-save.ponosgames.com/v2/transfers/{account}/reception",
-        ))
+        .post(url)
         .headers(header)
         .body(data.to_string())
         .send()
