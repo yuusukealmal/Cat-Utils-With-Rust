@@ -7,12 +7,15 @@ mod bcuzip;
 mod event;
 mod functions;
 mod placement;
+mod seed;
 
 #[tokio::main]
 async fn main() {
     loop {
         let mut input = String::new();
-        println!("請選擇項目: \n1. 獲得活動檔案\n2. 解密bcuzip\n3. 取得公告\n4. 退出");
+        println!(
+            "請選擇項目: \n1. 獲得活動檔案\n2. 解密bcuzip\n3. 取得公告\n4. 取得種子碼\n5. 退出"
+        );
         io::stdin().read_line(&mut input).expect("讀取失敗");
         let number: u32 = input.trim().parse().expect("輸入錯誤");
 
@@ -44,12 +47,15 @@ async fn main() {
                 println!("公告下載完成");
             }
             4 => {
+                let seed = seed::handle::get_seed().await;
+                println!("取得種子碼: {}", seed.unwrap());
+            }
+            5 => {
                 println!("謝謝使用");
                 break;
             }
             _ => {
                 eprintln!("Error: Invalid input.");
-                return;
             }
         }
     }
