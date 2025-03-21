@@ -9,9 +9,6 @@ impl EventData {
         cc: &str,
         file: &str,
     ) -> Result<(), std::io::Error> {
-        self.generate_account().await.ok();
-        self.generate_jwtoken().await.ok();
-
         let cc_suffix = if cc == "jp" { "" } else { cc };
         let url = format!(
             "https://nyanko-events.ponosgames.com/battlecats{cc_suffix}_production/{file}.tsv?jwt={}",

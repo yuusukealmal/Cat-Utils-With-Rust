@@ -14,14 +14,17 @@ pub async fn get_data() -> Result<(), std::io::Error> {
         format!("Selected output folder: {}", output_path),
     );
 
-    for cc in ["jp", "tw", "en", "kr"] {
-        let mut event = EventData {
-            account_code: None,
-            password: None,
-            password_refresh_token: None,
-            jwt_token: None,
-        };
+    let mut event = EventData {
+        account_code: None,
+        password: None,
+        password_refresh_token: None,
+        jwt_token: None,
+    };
 
+    event.generate_account().await.ok();
+    event.generate_jwtoken().await.ok();
+
+    for cc in ["jp", "tw", "en", "kr"] {
         for file in ["sale", "gatya", "item"] {
             let _ = event.to_file(output_path.clone(), cc, file).await?;
         }
