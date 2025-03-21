@@ -1,4 +1,7 @@
-use crate::seed::handle::SaveParser;
+use crate::{
+    functions::logger::logger::{log, LogLevel},
+    seed::handle::SaveParser,
+};
 
 impl SaveParser {
     pub fn new(save_data: Vec<u8>) -> Self {
@@ -152,12 +155,14 @@ impl SaveParser {
         let b = self.seek(1);
         let c = self.seek(1);
         self.seek((a * b) as usize * 2);
-        self.seek((a * c * b)as usize *2);
+        self.seek((a * c * b) as usize * 2);
         self.seek((a * b) as usize);
         self.seek(152);
         self.get_data(4, 4, None);
 
         let seed = self.seek(4);
+
+        log(LogLevel::Info, format!("Get Seed: {}", seed));
         seed
     }
 }

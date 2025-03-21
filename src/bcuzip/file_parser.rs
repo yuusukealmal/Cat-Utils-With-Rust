@@ -12,6 +12,7 @@ pub mod length_count {
 
     use super::Files;
     use crate::bcuzip::write::BCUZIP;
+    use crate::functions::logger::logger::{log, LogLevel};
     use crate::functions::writer::create_dir;
 
     fn cnt_length(fp: &str) -> Result<BCUZIP, std::io::Error> {
@@ -34,6 +35,11 @@ pub mod length_count {
 
         let hash = md5::compute(b"battlecatsultimate");
         let iv = <[u8; 16]>::try_from(&hash[..16]).unwrap();
+
+        log(LogLevel::Info, format!("Length: {}", length));
+        log(LogLevel::Info, format!("Pad: {}", pad));
+        log(LogLevel::Info, format!("Key: {}", hex::encode(key_buffer)));
+        log(LogLevel::Info, format!("IV: {}", hex::encode(iv)));
 
         Ok(BCUZIP {
             title: String::new(),
@@ -60,6 +66,8 @@ pub mod length_count {
             .map(|s| s.to_string())
             .unwrap_or_else(|| "Unknown".to_string());
 
+        log(LogLevel::Info, format!("Title: {}", zip.title));
+
         create_dir(&format!("{}/{}", dest, zip.title))?;
 
         for i in info["files"].as_array().unwrap_or(&vec![]) {
@@ -75,6 +83,14 @@ pub mod length_count {
                 };
 
                 BCUZIP::write_file(&zip, &f, dest)?;
+
+                log(
+                    LogLevel::Info,
+                    format!(
+                        "Success Write File Path: {} Offset: {} Size: {}",
+                        f.path, f.offset, f.size
+                    ),
+                );
             }
         }
 

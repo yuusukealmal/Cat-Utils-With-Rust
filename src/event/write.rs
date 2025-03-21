@@ -1,4 +1,5 @@
 use crate::event::get_token::EventData;
+use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::writer::create_file;
 
 impl EventData {
@@ -18,9 +19,9 @@ impl EventData {
         );
 
         let data = reqwest::get(&url).await.unwrap().text().await.unwrap();
-        let file_path = format!("{}\\{}_{}.tsv", output_path, cc.to_uppercase(), file);
+        let file_path = format!("{}\\{}_{}.tsv", output_path, cc, file);
         create_file(data.as_bytes(), &file_path)?;
-
+        log(LogLevel::Info, format!("Success Write File {}", file_path));
         Ok(())
     }
 }

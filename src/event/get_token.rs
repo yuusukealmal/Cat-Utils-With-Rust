@@ -4,7 +4,10 @@ use reqwest::{header::HeaderMap, Response};
 use serde_json::json;
 use sha2::Sha256;
 
-use crate::functions::utils::{generate_random_hash, get_timestamp};
+use crate::functions::{
+    logger::logger::{log, LogLevel},
+    utils::{generate_random_hash, get_timestamp},
+};
 
 pub struct EventData {
     pub account_code: Option<String>,
@@ -69,6 +72,11 @@ impl EventData {
 
         if account_json["success"].as_bool().unwrap_or(false) {
             self.account_code = account_json["accountId"].as_str().map(String::from);
+            log(
+                LogLevel::Info,
+                format!("Account Code: {}", self.account_code.as_deref().unwrap()),
+            );
+
             let time = get_timestamp(1);
             let random_hex = generate_random_hash(32);
 
@@ -92,9 +100,21 @@ impl EventData {
                 self.password = password_json["payload"]["password"]
                     .as_str()
                     .map(String::from);
+                log(
+                    LogLevel::Info,
+                    format!("Password: {}", self.password.as_deref().unwrap()),
+                );
+
                 self.password_refresh_token = password_json["payload"]["passwordRefreshToken"]
                     .as_str()
                     .map(String::from);
+                log(
+                    LogLevel::Info,
+                    format!(
+                        "Password Refresh Token: {}",
+                        self.password_refresh_token.as_deref().unwrap()
+                    ),
+                );
             }
         }
         Ok(())
@@ -137,6 +157,10 @@ impl EventData {
 
         if jwt_json["statusCode"] == 1 {
             self.jwt_token = jwt_json["payload"]["token"].as_str().map(String::from);
+            log(
+                LogLevel::Info,
+                format!("JWT Token: {}", self.jwt_token.as_deref().unwrap()),
+            );
         }
         Ok(())
     }
