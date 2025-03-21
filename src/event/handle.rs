@@ -1,8 +1,13 @@
 use crate::event::get_token::EventData;
 use crate::functions::file_selector::file_dialog;
 
-pub async fn get_data() -> Option<()> {
-    let output_path: String = file_dialog(false, None, None)?.to_str()?.into();
+pub async fn get_data() -> Result<(), std::io::Error>  {
+    println!("請選擇輸出資料夾");
+    let output_path = file_dialog(false, None, None)
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "No folder selected"))?
+        .to_str()
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid output path"))?
+        .to_owned();
 
     for cc in ["jp", "tw", "en", "kr"] {
         let mut event = EventData {
@@ -13,9 +18,9 @@ pub async fn get_data() -> Option<()> {
         };
 
         for file in ["sale", "gatya", "item"] {
-            let _ = event.to_file(output_path.clone(), cc, file).await;
+            let _ = event.to_file(output_path.clone(), cc, file).await?;
         }
     }
 
-    Some(())
+    Ok(())
 }

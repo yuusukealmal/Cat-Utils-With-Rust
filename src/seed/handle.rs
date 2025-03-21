@@ -1,6 +1,7 @@
 use std::io;
 
 use regex::Regex;
+use colored::Colorize;
 
 use crate::functions::utils::zfill;
 use crate::seed::requests;
@@ -21,7 +22,7 @@ pub async fn get_seed() -> Result<u32, std::io::Error> {
     let account = input.trim().to_string();
 
     if !account_reg.is_match(&account) {
-        println!("帳號格式錯誤");
+        println!("{}", "帳號格式錯誤".red());
         return Err(io::Error::new(io::ErrorKind::InvalidData, "帳號格式錯誤"));
     }
 
@@ -31,7 +32,7 @@ pub async fn get_seed() -> Result<u32, std::io::Error> {
     let password = input.trim().to_string();
 
     if !password_reg.is_match(&password) {
-        println!("密碼格式錯誤");
+        println!("{}", "密碼格式錯誤".red());
         return Err(io::Error::new(io::ErrorKind::InvalidData, "密碼格式錯誤"));
     }
 
@@ -45,7 +46,7 @@ pub async fn get_seed() -> Result<u32, std::io::Error> {
         "3" => "en",
         "4" => "kr",
         _ => {
-            println!("輸入錯誤");
+            println!("{}", "輸入錯誤".red());
             return Err(io::Error::new(io::ErrorKind::InvalidData, "輸入錯誤"));
         }
     };

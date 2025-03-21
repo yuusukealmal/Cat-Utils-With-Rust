@@ -1,5 +1,7 @@
 use std::io;
 
+use colored::Colorize;
+
 use bcuzip::file_parser::length_count;
 use bcuzip::file_select;
 
@@ -21,8 +23,8 @@ async fn main() {
 
         match number {
             1 => {
-                event::handle::get_data().await;
-                println!("\n活動檔案下載完成\n");
+                let _ = event::handle::get_data().await;
+                println!("{}", "\n活動檔案下載完成\n".green());
             }
             2 => {
                 let file = file_select::selectfile();
@@ -35,27 +37,27 @@ async fn main() {
                         let _ = length_count::parse_file(&file_str, &dest_str);
                     }
                     _ => {
-                        eprintln!("Error: No file or destination folder selected.");
+                        eprintln!("{}", "Error: No file or destination folder selected.".red());
                         return;
                     }
                 }
 
-                println!("\n解密完成\n");
+                println!("{}", "\n解密完成\n".green());
             }
             3 => {
                 let _ = placement::handle::get_announcement().await;
-                println!("\n公告下載完成\n");
+                println!("{}", "\n公告下載完成\n".green());
             }
             4 => {
-                let seed = seed::handle::get_seed().await;
-                println!("\n取得種子碼: {}\n", seed.unwrap());
+                let seed = seed::handle::get_seed().await.unwrap();
+                println!("{}", format!("\n取得種子碼: {seed}\n").green());
             }
             5 => {
-                println!("\n謝謝使用");
+                println!("{}", "\n謝謝使用".green());
                 break;
             }
             _ => {
-                eprintln!("\nError: Invalid input.\n");
+                eprintln!("{}", "\nError: Invalid input.\n".red());
             }
         }
     }

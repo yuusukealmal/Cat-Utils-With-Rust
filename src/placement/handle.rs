@@ -4,6 +4,7 @@ use crate::placement::requests;
 use std::path::PathBuf;
 
 pub async fn get_announcement() -> Result<(), std::io::Error> {
+    println!("請選擇輸出資料夾");
     let output_path = file_dialog(false, None, None)
         .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "No folder selected"))?
         .to_str()
