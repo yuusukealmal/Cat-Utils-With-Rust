@@ -1,6 +1,7 @@
 pub mod logger {
     use colored::Colorize;
 
+    #[allow(dead_code)]
     pub enum LogLevel {
         Info,
         Warning,
