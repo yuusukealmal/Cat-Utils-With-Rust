@@ -1,4 +1,5 @@
 mod aes_decrypt;
-pub mod file_parser;
-pub mod file_select;
+mod file_parser;
+mod file_select;
+pub mod handle;
 mod write;
