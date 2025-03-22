@@ -1,3 +1,5 @@
+use std::ffi::OsStr;
+use std::io;
 use std::path::PathBuf;
 
 use crate::functions::logger::logger::{log, LogLevel};
@@ -29,12 +31,29 @@ impl Item {
                 create_file(content, fp_str)?;
             }
             _ => {
-                let data = aes_decrypt::decrypt_pack(cc, content).map_err(|e| {
+                let mut data = aes_decrypt::decrypt_pack(cc, content).map_err(|e| {
                     std::io::Error::new(
                         std::io::ErrorKind::Other,
                         format!("Decrypt error: {:#?}", e),
                     )
                 })?;
+
+                if fp.extension().and_then(OsStr::to_str) == Some("json") {
+                    let json_str = String::from_utf8(data).map_err(|e| {
+                        io::Error::new(io::ErrorKind::InvalidData, format!("UTF-8 decode error: {}", e))
+                    })?;
+
+                    let json: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| {
+                        io::Error::new(io::ErrorKind::InvalidData, format!("JSON parse error: {}", e))
+                    })?;
+
+                    data = serde_json::to_string_pretty(&json)
+                        .map_err(|e| {
+                            io::Error::new(io::ErrorKind::Other, format!("JSON serialize error: {}", e))
+                        })?
+                        .into_bytes();
+                }
+            
                 create_file(&data, fp_str)?;
             }
         }
