@@ -2,7 +2,6 @@ use std::{env, fs::File};
 
 use zip::ZipArchive;
 
-#[derive(Debug)]
 pub struct APK {
     pub cc: String,
     pub list_key: String,
@@ -10,7 +9,7 @@ pub struct APK {
     pub pack_iv: String,
     pub items: Vec<String>,
 }
-#[derive(Debug)]
+
 pub struct Item {
     pub name: String,
     pub start: usize,
