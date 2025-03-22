@@ -1,5 +1,5 @@
 /target
 
-*apk
-*xapk
-*zip
+*.apk
+*.xapk
+*.zip
