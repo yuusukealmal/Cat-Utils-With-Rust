@@ -6,7 +6,7 @@ pub fn selectfile() -> Option<PathBuf> {
     file_dialog(
         true,
         Some("BCUZIP files".to_string()),
-        Some("bcuzip".to_string()),
+        Some(["bcuzip"].to_vec()),
     )
 }
 

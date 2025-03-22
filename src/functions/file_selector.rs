@@ -5,7 +5,7 @@ use std::path::PathBuf;
 pub fn file_dialog(
     pick_file: bool,
     name: Option<String>,
-    extension: Option<String>,
+    extensions: Option<Vec<&str>>,
 ) -> Option<PathBuf> {
     let mut dialog = FileDialog::new();
 
@@ -14,12 +14,13 @@ pub fn file_dialog(
     }
 
     if pick_file {
-        dialog
-            .add_filter(
-                name.unwrap_or(String::from("All Files")),
-                &[extension.unwrap_or(String::from("*"))],
-            )
-            .pick_file()
+        if let Some(ext_list) = extensions {
+            dialog = dialog.add_filter(
+                &name.unwrap_or_else(|| String::from("All Files")),
+                &ext_list,
+            );
+        }
+        dialog.pick_file()
     } else {
         dialog.pick_folder()
     }
