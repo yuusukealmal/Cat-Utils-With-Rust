@@ -1,13 +1,21 @@
 pub mod aes_decrypt {
     use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
-    use crypto::{aes, blockmodes, buffer, symmetriccipher};
+    use crypto::{aes, blockmodes, buffer};
+    use std::{env, error::Error};
 
-    pub fn decrypt_list(
-        key: &[u8],
-        data: &[u8],
-    ) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
-        let mut decryptor =
-            aes::ecb_decryptor(aes::KeySize::KeySize128, key, blockmodes::PkcsPadding);
+    pub fn decrypt_list(data: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
+        let key = env::var("LIST").map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("Key for LISTnot found"),
+            )
+        })?;
+
+        let mut decryptor = aes::ecb_decryptor(
+            aes::KeySize::KeySize128,
+            key.as_bytes(),
+            blockmodes::PkcsPadding,
+        );
 
         let mut result = Vec::with_capacity(data.len());
         let mut read_buffer = buffer::RefReadBuffer::new(data);
@@ -24,15 +32,31 @@ pub mod aes_decrypt {
         Ok(result)
     }
 
-    pub fn decrypt_pack(
-        key: &str,
-        iv: &str,
-        data: &[u8],
-    ) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
+    pub fn decrypt_pack(cc: &str, data: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
+        let key = env::var(format!("{}_KEY", cc)).map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("Key for {} not found", cc),
+            )
+        })?;
+        let iv = env::var(format!("{}_IV", cc)).map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("IV for {} not found", cc),
+            )
+        })?;
+
+        let key_bytes = hex::decode(&key).map_err(|_| {
+            std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid key format")
+        })?;
+        let iv_bytes = hex::decode(&iv).map_err(|_| {
+            std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid IV format")
+        })?;
+
         let mut decryptor = aes::cbc_decryptor(
             aes::KeySize::KeySize128,
-            hex::decode(key).unwrap().as_slice(),
-            hex::decode(iv).unwrap().as_slice(),
+            &key_bytes,
+            &iv_bytes,
             blockmodes::NoPadding,
         );
 
@@ -63,6 +87,7 @@ pub mod aes_decrypt {
                 return &res[..res.len() - padding_count];
             }
         }
+
         res
     }
 }

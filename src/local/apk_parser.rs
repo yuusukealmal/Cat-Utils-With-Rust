@@ -1,14 +1,8 @@
-use std::{env, fs::File};
+use std::fs::File;
 
 use zip::ZipArchive;
 
-pub struct APK {
-    pub cc: String,
-    pub list_key: String,
-    pub pack_key: String,
-    pub pack_iv: String,
-    pub items: Vec<String>,
-}
+pub struct APK {}
 
 pub struct Item {
     pub name: String,
@@ -17,32 +11,26 @@ pub struct Item {
 }
 
 impl APK {
-    fn read_items(&mut self) -> Result<(), std::io::Error> {
+    fn read_items(&self) -> Result<Vec<String>, std::io::Error> {
         let file = File::open("InstallPack.apk")?;
         let zip = ZipArchive::new(file)?;
 
-        zip.file_names().for_each(|name| {
-            if name.ends_with(".list") {
-                self.items.push(name.to_string().replace(".list", ""));
-            }
-        });
+        let items = zip
+            .file_names()
+            .filter(|name| name.ends_with(".list"))
+            .map(|name| name.replace(".list", ""))
+            .collect();
 
-        Ok(())
+        Ok(items)
     }
 }
 
-pub fn parse_apk(cc: &str, output_path: &str) {
-    let mut apk = APK {
-        cc: cc.to_string(),
-        list_key: env::var("LIST").unwrap(),
-        pack_key: env::var(format!("{}_PACK", cc)).unwrap(),
-        pack_iv: env::var(format!("{}_IV", cc)).unwrap(),
-        items: Vec::new(),
-    };
-
-    let _ = apk.read_items();
-
-    for item in apk.items.clone() {
-        let _ = apk.parse_item(output_path, &item);
+pub fn parse_apk(cc: &str, output_path: &str) -> Result<(), std::io::Error> {
+    let mut apk = APK {};
+    let items = apk.read_items()?;
+    for item in &items {
+        let _ = apk.parse_item(cc, output_path, item);
     }
+
+    Ok(())
 }
