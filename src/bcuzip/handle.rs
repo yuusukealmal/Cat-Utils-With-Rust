@@ -1,11 +1,13 @@
 use colored::Colorize;
 
-use crate::functions::logger::logger::{log, LogLevel};
-use crate::bcuzip::file_select;
 use crate::bcuzip::file_parser::length_count;
+use crate::bcuzip::file_select;
+use crate::functions::logger::logger::{log, LogLevel};
 
 pub fn decrypt_bcuzip() {
+    println!("請選擇檔案");
     let file = file_select::selectfile();
+    println!("請選擇輸出資料夾");
     let dest = file_select::selectfolder();
 
     match (file, dest) {
