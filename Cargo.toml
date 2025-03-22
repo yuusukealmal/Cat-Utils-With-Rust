@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dotenv = "0.15.0"
 dirs = "6.0.0"
 rfd = "0.15.3"
 md5 = "0.7.0"
@@ -17,3 +18,4 @@ sha2 = "0.10.8"
 hex = "0.4.2"
 regex = "1.11.1"
 colored = "3.0.0"
+zip = "2.4.2"
