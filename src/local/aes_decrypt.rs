@@ -7,7 +7,7 @@ pub mod aes_decrypt {
         let key = env::var("LIST").map_err(|_| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
-                format!("Key for LISTnot found"),
+                format!("Key for LIST not found"),
             )
         })?;
 
