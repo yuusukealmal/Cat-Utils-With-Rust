@@ -39,7 +39,7 @@ impl APK {
     ) -> Result<(), std::io::Error> {
         log(LogLevel::Info, format!("Parsing item: {}", item));
 
-        let file = File::open("InstallPack.apk")?;
+        let file = File::open(std::env::temp_dir().join("InstallPack.apk"))?;
         let mut zip = ZipArchive::new(file)?;
 
         let list_str = match self.get_list_str(&mut zip, item) {

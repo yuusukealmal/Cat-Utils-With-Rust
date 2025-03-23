@@ -12,7 +12,7 @@ pub struct Item {
 
 impl APK {
     fn read_items(&self) -> Result<Vec<String>, std::io::Error> {
-        let file = File::open("InstallPack.apk")?;
+        let file = File::open(std::env::temp_dir().join("InstallPack.apk"))?;
         let zip = ZipArchive::new(file)?;
 
         let items = zip
