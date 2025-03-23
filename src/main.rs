@@ -10,7 +10,7 @@ mod placement;
 mod seed;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     loop {
         let mut input = String::new();
@@ -22,23 +22,23 @@ async fn main() {
 
         match number {
             1 => {
-                let _ = event::handle::get_data().await;
+                event::handle::get_data().await?;
                 println!("{}", "\n活動檔案下載完成\n".green());
             }
             2 => {
-                let _ = placement::handle::get_announcement().await;
+                placement::handle::get_announcement().await?;
                 println!("{}", "\n公告下載完成\n".green());
             }
             3 => {
-                let _ = local::handle::dump_apk();
+                local::handle::dump_apk()?;
                 println!("{}", "\n拆包完成\n".green());
             }
             4 => {
-                let _ = bcuzip::handle::decrypt_bcuzip();
+                bcuzip::handle::decrypt_bcuzip()?;
                 println!("{}", "\n解密完成\n".green());
             }
             5 => {
-                let seed = seed::handle::get_seed().await.unwrap();
+                let seed = seed::handle::get_seed().await?;
                 println!("{}", format!("\n取得種子碼: {seed}\n").green());
             }
             6 => {
@@ -50,4 +50,6 @@ async fn main() {
             }
         }
     }
+
+    Ok(())
 }

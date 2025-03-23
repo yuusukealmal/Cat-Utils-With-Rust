@@ -40,20 +40,29 @@ impl Item {
 
                 if fp.extension().and_then(OsStr::to_str) == Some("json") {
                     let json_str = String::from_utf8(data).map_err(|e| {
-                        io::Error::new(io::ErrorKind::InvalidData, format!("UTF-8 decode error: {}", e))
+                        io::Error::new(
+                            io::ErrorKind::InvalidData,
+                            format!("UTF-8 decode error: {}", e),
+                        )
                     })?;
 
                     let json: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| {
-                        io::Error::new(io::ErrorKind::InvalidData, format!("JSON parse error: {}", e))
+                        io::Error::new(
+                            io::ErrorKind::InvalidData,
+                            format!("JSON parse error: {}", e),
+                        )
                     })?;
 
                     data = serde_json::to_string_pretty(&json)
                         .map_err(|e| {
-                            io::Error::new(io::ErrorKind::Other, format!("JSON serialize error: {}", e))
+                            io::Error::new(
+                                io::ErrorKind::Other,
+                                format!("JSON serialize error: {}", e),
+                            )
                         })?
                         .into_bytes();
                 }
-            
+
                 create_file(&data, fp_str)?;
             }
         }

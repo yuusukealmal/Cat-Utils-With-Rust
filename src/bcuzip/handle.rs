@@ -4,7 +4,7 @@ use crate::bcuzip::file_parser::length_count;
 use crate::bcuzip::file_select;
 use crate::functions::logger::logger::{log, LogLevel};
 
-pub fn decrypt_bcuzip() {
+pub fn decrypt_bcuzip() -> Result<(), Box<dyn std::error::Error>> {
     println!("請選擇檔案");
     let file = file_select::selectfile();
     println!("請選擇輸出資料夾");
@@ -19,11 +19,12 @@ pub fn decrypt_bcuzip() {
                 LogLevel::Info,
                 format!("Selected destination folder: {}", dest_str),
             );
-            let _ = length_count::parse_file(&file_str, &dest_str);
+            length_count::parse_file(&file_str, &dest_str)?;
         }
         _ => {
             eprintln!("{}", "Error: No file or destination folder selected.".red());
-            return;
         }
     }
+
+    Ok(())
 }
