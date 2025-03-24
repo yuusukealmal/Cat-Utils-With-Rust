@@ -1,7 +1,7 @@
 use std::{ffi::OsStr, fs::File, io::Read};
 use zip::ZipArchive;
 
-use super::valid_pack::valid_pack::{valid_apk, valid_xapk};
+use crate::functions::valid_apk::valid_pack::{valid_apk, valid_xapk};
 use crate::{
     functions::{
         file_selector::{self, file_dialog},
