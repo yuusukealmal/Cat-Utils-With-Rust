@@ -1,7 +1,8 @@
 pub mod aes_decrypt {
+    use std::{env, error::Error};
+
     use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
     use crypto::{aes, blockmodes, buffer};
-    use std::{env, error::Error};
 
     pub fn decrypt_ecb(is_pack: bool, data: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
         let key = if is_pack {
@@ -38,11 +39,6 @@ pub mod aes_decrypt {
             }
         }
 
-        // if is_pack {
-        //     Ok(delete_padding(&result).to_vec())
-        // } else {
-        //     Ok(result)
-        // }
         Ok(result)
     }
 

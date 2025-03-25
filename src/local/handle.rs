@@ -1,14 +1,11 @@
 use std::{ffi::OsStr, fs::File, io::Read};
+
 use zip::ZipArchive;
 
+use super::apk_parser::{self};
+use crate::functions::file_selector::{self, file_dialog};
+use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::valid_apk::valid_pack::{valid_apk, valid_xapk};
-use crate::{
-    functions::{
-        file_selector::{self, file_dialog},
-        logger::logger::{log, LogLevel},
-    },
-    local::apk_parser,
-};
 
 pub fn dump_apk() -> Result<(), Box<dyn std::error::Error>> {
     println!("請選擇安裝檔 (.apk/.xapk)");

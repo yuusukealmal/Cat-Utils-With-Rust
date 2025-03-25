@@ -3,8 +3,8 @@ use std::{fs::File, io::Read, path::Path};
 use zip::ZipArchive;
 
 use super::parse_zip;
+use super::{get_version, zip_download};
 use crate::functions::logger::logger::{log, LogLevel};
-use crate::server::{get_version, zip_download};
 
 pub async fn parse_server(
     cc: &str,

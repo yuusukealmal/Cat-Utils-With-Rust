@@ -1,7 +1,7 @@
 use colored::Colorize;
 
-use crate::bcuzip::file_parser::length_count;
-use crate::bcuzip::file_select;
+use super::file_parser::length_count;
+use super::file_select;
 use crate::functions::logger::logger::{log, LogLevel};
 
 pub fn decrypt_bcuzip() -> Result<(), Box<dyn std::error::Error>> {

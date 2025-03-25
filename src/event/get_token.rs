@@ -4,10 +4,8 @@ use reqwest::{header::HeaderMap, Response};
 use serde_json::json;
 use sha2::Sha256;
 
-use crate::functions::{
-    logger::logger::{log, LogLevel},
-    utils::{generate_random_hash, get_timestamp},
-};
+use crate::functions::logger::logger::{log, LogLevel};
+use crate::functions::utils::{generate_random_hash, get_timestamp};
 
 pub struct EventData {
     pub account_code: Option<String>,

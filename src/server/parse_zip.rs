@@ -1,17 +1,13 @@
-use std::{
-    fs::File,
-    io::{self, Read, Write},
-    path::PathBuf,
-};
+use std::fs::File;
+use std::io::{self, Read, Write};
+use std::path::PathBuf;
 
 use colored::Colorize;
 use zip::ZipArchive;
 
-use crate::functions::{
-    aes_decrypt::aes_decrypt,
-    logger::logger::{log, LogLevel},
-    writer::{create_dir, create_file},
-};
+use crate::functions::aes_decrypt::aes_decrypt;
+use crate::functions::logger::logger::{log, LogLevel};
+use crate::functions::writer::{create_dir, create_file};
 
 pub struct Item {
     pub name: String,

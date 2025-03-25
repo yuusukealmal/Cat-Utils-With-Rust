@@ -3,9 +3,9 @@ use std::io;
 use colored::Colorize;
 use regex::Regex;
 
+use super::requests;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::zfill;
-use crate::seed::requests;
 
 pub struct SaveParser {
     pub address: usize,

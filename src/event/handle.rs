@@ -1,4 +1,4 @@
-use crate::event::get_token::EventData;
+use super::get_token::EventData;
 use crate::functions::file_selector::file_dialog;
 use crate::functions::logger::logger::{log, LogLevel};
 

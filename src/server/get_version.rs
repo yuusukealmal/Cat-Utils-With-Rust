@@ -1,13 +1,10 @@
-use std::{
-    cmp::min,
-    fs::File,
-    io::{BufReader, Read},
-};
+use std::cmp::min;
+use std::fs::File;
+use std::io::{BufReader, Read};
 
 use crate::functions::logger::logger::{log, LogLevel};
 
 pub mod version_details {
-
     pub fn get_start_bytes_by_cc(cc: &str) -> Option<Vec<u32>> {
         match cc {
             "jp" => Some(vec![5, 5, 5, 7000000]),

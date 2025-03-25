@@ -1,8 +1,9 @@
+use std::path::PathBuf;
+
+use super::requests;
 use crate::functions::file_selector::file_dialog;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::writer::create_file;
-use crate::placement::requests;
-use std::path::PathBuf;
 
 pub async fn get_announcement() -> Result<(), std::io::Error> {
     println!("請選擇輸出資料夾");

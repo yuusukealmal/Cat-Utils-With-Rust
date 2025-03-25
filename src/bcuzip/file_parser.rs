@@ -5,14 +5,15 @@ pub struct Files {
 }
 
 pub mod length_count {
-    use colored::Colorize;
-    use md5;
     use std::fs::File;
     use std::io::{self, Read, Seek, SeekFrom, Write};
     use std::result::Result;
 
+    use colored::Colorize;
+    use md5;
+
+    use super::super::write::BCUZIP;
     use super::Files;
-    use crate::bcuzip::write::BCUZIP;
     use crate::functions::logger::logger::{log, LogLevel};
     use crate::functions::writer::create_dir;
 

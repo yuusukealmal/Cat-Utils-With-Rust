@@ -1,7 +1,5 @@
-use crate::{
-    functions::logger::logger::{log, LogLevel},
-    seed::handle::SaveParser,
-};
+use super::handle::SaveParser;
+use crate::functions::logger::logger::{log, LogLevel};
 
 impl SaveParser {
     pub fn new(save_data: Vec<u8>) -> Self {

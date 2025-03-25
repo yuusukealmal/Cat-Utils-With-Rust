@@ -1,6 +1,7 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use rand::Rng;
 use serde_json::{json, Value};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn zfill(version: &str) -> u32 {
     version
