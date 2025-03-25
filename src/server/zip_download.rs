@@ -1,14 +1,18 @@
 use futures::StreamExt;
+use reqwest::header::HeaderMap;
 use reqwest::Client;
 use std::fs::OpenOptions;
 use std::io::Write;
-use reqwest::header::HeaderMap;
 
 use crate::functions::logger::logger::{log, LogLevel};
 
 use super::cloudfront;
 
-pub async fn download_zip(cc: &str, index: usize, version: &u32) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn download_zip(
+    cc: &str,
+    index: usize,
+    version: &u32,
+) -> Result<(), Box<dyn std::error::Error>> {
     let cc = match cc {
         "jp" => "battlecats".to_string(),
         _ => format!("battlecats{}", cc),
@@ -28,14 +32,13 @@ pub async fn download_zip(cc: &str, index: usize, version: &u32) -> Result<(), B
 
     let cloudfront = cloudfront::CloudFrontSign::new();
 
-    let sign = match cloudfront
-        .generate_signed_cookie("https://nyanko-assets.ponosgames.com/*") {
-            Ok(sign) => sign,
-            Err(e) => {
-                println!("Error: {}", e);
-                return Err(e.into());
-            }
-        };
+    let sign = match cloudfront.generate_signed_cookie("https://nyanko-assets.ponosgames.com/*") {
+        Ok(sign) => sign,
+        Err(e) => {
+            println!("Error: {}", e);
+            return Err(e.into());
+        }
+    };
     println!("{}", sign);
     let mut headers = HeaderMap::new();
     headers.insert("accept-encoding", "gzip".parse()?);
@@ -44,8 +47,7 @@ pub async fn download_zip(cc: &str, index: usize, version: &u32) -> Result<(), B
     headers.insert("range", "bytes=0-".parse()?);
     headers.insert(
         "user-agent",
-        "Dalvik/2.1.0 (Linux; U; Android 13; XQ-BC52 Build/61.2.A.0.447)"
-            .parse()?,
+        "Dalvik/2.1.0 (Linux; U; Android 13; XQ-BC52 Build/61.2.A.0.447)".parse()?,
     );
 
     let url = format!(
@@ -66,13 +68,13 @@ pub async fn download_zip(cc: &str, index: usize, version: &u32) -> Result<(), B
         .write(true)
         .truncate(true)
         .open(format!("{}/temp.zip", std::env::temp_dir().display()))?;
-    
+
     let mut stream = response.bytes_stream();
-    
+
     while let Some(chunk) = stream.next().await {
         let chunk = chunk?;
         file.write_all(&chunk)?;
     }
-    
+
     Ok(())
 }
