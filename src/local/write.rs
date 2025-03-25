@@ -38,7 +38,7 @@ impl Item {
                     )
                 })?;
 
-                if fp.extension().and_then(OsStr::to_str) == Some("json") {
+                if fp.extension().and_then(OsStr::to_str) == Some("json") && data.len() > 0 {
                     let json_str = String::from_utf8(data).map_err(|e| {
                         io::Error::new(
                             io::ErrorKind::InvalidData,
@@ -70,6 +70,7 @@ impl Item {
             LogLevel::Info,
             format!(
                 "Success Write File {}",
+                "Successfully wrote file: {}",
                 fp.file_name().unwrap_or_default().to_string_lossy()
             ),
         );
