@@ -39,7 +39,7 @@ pub async fn download_zip(
             return Err(e.into());
         }
     };
-    println!("{}", sign);
+
     let mut headers = HeaderMap::new();
     headers.insert("accept-encoding", "gzip".parse()?);
     headers.insert("connection", "keep-alive".parse()?);
@@ -58,10 +58,7 @@ pub async fn download_zip(
     log(LogLevel::Info, format!("Downloading zip {}", version_fmt));
 
     let client = Client::new();
-    let response = client.get(&url)
-        .headers(headers)
-        .send()
-        .await?;
+    let response = client.get(&url).headers(headers).send().await?;
 
     let mut file = OpenOptions::new()
         .create(true)
