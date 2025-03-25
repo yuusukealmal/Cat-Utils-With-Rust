@@ -2,9 +2,9 @@ use std::ffi::OsStr;
 use std::io;
 use std::path::PathBuf;
 
+use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::writer::{create_dir, create_file};
-use crate::local::aes_decrypt::aes_decrypt;
 use crate::local::apk_parser::Item;
 
 impl Item {
@@ -31,7 +31,7 @@ impl Item {
                 create_file(content, fp_str)?;
             }
             _ => {
-                let mut data = aes_decrypt::decrypt_pack(cc, content).map_err(|e| {
+                let mut data = aes_decrypt::decrypt_cbc(cc, content).map_err(|e| {
                     std::io::Error::new(
                         std::io::ErrorKind::Other,
                         format!("Decrypt error: {:#?}", e),

@@ -1,11 +1,12 @@
+use std::error::Error;
 use std::fs::File;
 use std::io::{self, Read};
 use std::path::PathBuf;
 
 use zip::ZipArchive;
 
+use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::logger::logger::{log, LogLevel};
-use crate::local::aes_decrypt::aes_decrypt;
 use crate::local::apk_parser::{Item, APK};
 
 impl APK {
@@ -18,8 +19,11 @@ impl APK {
         let mut item_list_data = Vec::new();
         item_list.read_to_end(&mut item_list_data)?;
 
-        let result = aes_decrypt::decrypt_list(&item_list_data.as_slice())
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, format!("Decrypt error: {}", e)))?;
+        let result = aes_decrypt::decrypt_ecb(false, &item_list_data.as_slice()).map_err(
+            |e: Box<dyn Error>| {
+                io::Error::new(io::ErrorKind::Other, format!("Decrypt error: {}", e))
+            },
+        )?;
 
         let list_str = String::from_utf8(result).map_err(|e| {
             io::Error::new(
@@ -72,7 +76,7 @@ impl APK {
 
                 let content = &item_pack_data[file.start..file.start + file.arrange];
 
-                let package = format!("jp.co.ponos.battlecats.{}", cc);
+                let package = format!("jp.co.ponos.battlecats.{} Local", cc);
                 let folder = item.split('/').last().unwrap();
                 let output_path = PathBuf::from(output_path)
                     .join(package)

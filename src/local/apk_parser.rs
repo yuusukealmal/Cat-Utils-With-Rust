@@ -29,7 +29,7 @@ pub fn parse_apk(cc: &str, output_path: &str) -> Result<(), std::io::Error> {
     let mut apk = APK {};
     let items = apk.read_items()?;
     for item in &items {
-        let _ = apk.parse_item(cc, output_path, item);
+        apk.parse_item(cc, output_path, item)?;
     }
 
     Ok(())

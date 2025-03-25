@@ -2,6 +2,7 @@ use std::{fs::File, io::Read};
 
 use zip::ZipArchive;
 
+use super::parse_zip;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::server::{get_version, zip_download};
 
@@ -53,8 +54,11 @@ pub async fn parse_server(
 
         for (index, version) in versions.iter().enumerate() {
             zip_download::download_zip(cc, index, version).await?;
-            break;
+            parse_zip::parse_zip(cc, output_path)?;
         }
+
+        std::fs::remove_file(std::env::temp_dir().join("lib.so"))?;
+        std::fs::remove_file(std::env::temp_dir().join("temp.zip"))?;
     }
 
     Ok(())

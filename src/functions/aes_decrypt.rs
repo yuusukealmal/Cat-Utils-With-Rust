@@ -3,13 +3,22 @@ pub mod aes_decrypt {
     use crypto::{aes, blockmodes, buffer};
     use std::{env, error::Error};
 
-    pub fn decrypt_list(data: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
-        let key = env::var("LIST").map_err(|_| {
-            std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                format!("Key for LIST not found"),
-            )
-        })?;
+    pub fn decrypt_ecb(is_pack: bool, data: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
+        let key = if is_pack {
+            env::var("PACK").map_err(|_| {
+                std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    format!("Key for PACK not found"),
+                )
+            })?
+        } else {
+            env::var("LIST").map_err(|_| {
+                std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    format!("Key for LIST not found"),
+                )
+            })?
+        };
 
         let mut decryptor = aes::ecb_decryptor(
             aes::KeySize::KeySize128,
@@ -29,10 +38,15 @@ pub mod aes_decrypt {
             }
         }
 
+        // if is_pack {
+        //     Ok(delete_padding(&result).to_vec())
+        // } else {
+        //     Ok(result)
+        // }
         Ok(result)
     }
 
-    pub fn decrypt_pack(cc: &str, data: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
+    pub fn decrypt_cbc(cc: &str, data: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
         let key = env::var(format!("{}_KEY", cc)).map_err(|_| {
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,

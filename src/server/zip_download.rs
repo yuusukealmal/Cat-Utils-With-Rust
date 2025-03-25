@@ -1,12 +1,12 @@
-use futures::StreamExt;
-use reqwest::header::HeaderMap;
-use reqwest::Client;
 use std::fs::OpenOptions;
 use std::io::Write;
 
-use crate::functions::logger::logger::{log, LogLevel};
+use futures::StreamExt;
+use reqwest::header::HeaderMap;
+use reqwest::Client;
 
 use super::cloudfront;
+use crate::functions::logger::logger::{log, LogLevel};
 
 pub async fn download_zip(
     cc: &str,
@@ -72,6 +72,8 @@ pub async fn download_zip(
         let chunk = chunk?;
         file.write_all(&chunk)?;
     }
+
+    file.flush()?;
 
     Ok(())
 }
