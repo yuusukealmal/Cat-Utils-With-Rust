@@ -5,9 +5,10 @@ pub struct Files {
 }
 
 pub mod length_count {
+    use colored::Colorize;
     use md5;
     use std::fs::File;
-    use std::io::{Read, Seek, SeekFrom};
+    use std::io::{self, Read, Seek, SeekFrom, Write};
     use std::result::Result;
 
     use super::Files;
@@ -70,8 +71,14 @@ pub mod length_count {
 
         create_dir(&format!("{}/{}", dest, zip.title))?;
 
-        for i in info["files"].as_array().unwrap_or(&vec![]) {
-            if let Some(obj) = i.as_object() {
+        let total = info["files"].as_array().unwrap().len();
+        for (i, item) in info["files"]
+            .as_array()
+            .unwrap_or(&vec![])
+            .iter()
+            .enumerate()
+        {
+            if let Some(obj) = item.as_object() {
                 let f = Files {
                     offset: obj.get("offset").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                     path: obj
@@ -82,14 +89,28 @@ pub mod length_count {
                     size: obj.get("size").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                 };
 
-                BCUZIP::write_file(&zip, &f, dest)?;
-
-                log(
-                    LogLevel::Info,
-                    format!("Successfully wrote file: {}", f.path),
-                );
+                match BCUZIP::write_file(&zip, &f, dest) {
+                    Ok(_) => {
+                        let progress = format!(
+                            "{}/{} ({}%) Writing file: {}",
+                            i + 1,
+                            total,
+                            (i + 1) * 100 / total,
+                            f.path
+                        );
+                        print!("\r\x1b[2K{} {}", "[Info]".green(), progress);
+                        io::stdout().flush().unwrap();
+                    }
+                    Err(e) => {
+                        log(
+                            LogLevel::Warning,
+                            format!("Error writing file {}: {}", f.path, e),
+                        );
+                    }
+                }
             }
         }
+        println!();
 
         Ok(())
     }

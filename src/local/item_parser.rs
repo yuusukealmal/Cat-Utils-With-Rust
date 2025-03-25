@@ -1,8 +1,9 @@
 use std::error::Error;
 use std::fs::File;
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 use std::path::PathBuf;
 
+use colored::Colorize;
 use zip::ZipArchive;
 
 use crate::functions::aes_decrypt::aes_decrypt;
@@ -61,29 +62,62 @@ impl APK {
         for (i, line) in list_str.lines().enumerate().skip(1) {
             let parts: Vec<&str> = line.split(',').collect();
             if parts.len() == 3 {
-                let start = parts[1]
-                    .parse::<usize>()
-                    .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
-                let arrange = parts[2]
-                    .parse::<usize>()
-                    .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+                let start = match parts[1].parse::<usize>() {
+                    Ok(v) => v,
+                    Err(e) => {
+                        log(
+                            LogLevel::Warning,
+                            format!("Invalid start index at line {}: {}", i + 1, e),
+                        );
+                        continue;
+                    }
+                };
 
-                let file = Item {
+                let arrange = match parts[2].parse::<usize>() {
+                    Ok(v) => v,
+                    Err(e) => {
+                        log(
+                            LogLevel::Warning,
+                            format!("Invalid arrange size at line {}: {}", i + 1, e),
+                        );
+                        continue;
+                    }
+                };
+
+                let item_data = Item {
                     name: parts[0].to_string(),
                     start,
                     arrange,
                 };
 
-                let content = &item_pack_data[file.start..file.start + file.arrange];
+                let content = &item_pack_data[item_data.start..item_data.start + item_data.arrange];
 
                 let package = format!("jp.co.ponos.battlecats.{} Local", cc);
-                let folder = item.split('/').last().unwrap();
+                let parent_folder = item.rsplit('/').next().unwrap_or("default_folder");
                 let output_path = PathBuf::from(output_path)
                     .join(package)
-                    .join(folder)
-                    .join(&file.name);
+                    .join(parent_folder)
+                    .join(&item_data.name);
 
-                file.write_file(cc, item, content, output_path)?;
+                match item_data.write_file(cc, item, content, output_path) {
+                    Ok(_) => {
+                        let progress = format!(
+                            "{}/{} ({}%) Writing file: {}",
+                            i,
+                            list_str.lines().count() - 1,
+                            i * 100 / (list_str.lines().count() - 1).max(1),
+                            item_data.name
+                        );
+                        print!("\r\x1b[2K{} {}", "[Info]".green(), progress);
+                        io::stdout().flush().unwrap();
+                    }
+                    Err(e) => {
+                        log(
+                            LogLevel::Warning,
+                            format!("Error writing file {}: {}", item_data.name, e),
+                        );
+                    }
+                }
             } else {
                 log(
                     LogLevel::Warning,
@@ -91,6 +125,7 @@ impl APK {
                 );
             }
         }
+        println!();
 
         Ok(())
     }

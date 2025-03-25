@@ -59,7 +59,7 @@ pub async fn parse_server(
 
     for (index, version) in versions.iter().enumerate() {
         zip_download::download_zip(cc, index, version).await?;
-        log(LogLevel::Info, format!("Start Parse Zip {}", version));
+        log(LogLevel::Info, format!("Start to Parse {}", version));
         parse_zip::parse_zip(cc, output_path)?;
     }
 

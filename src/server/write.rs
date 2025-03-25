@@ -3,7 +3,6 @@ use std::io;
 use std::path::PathBuf;
 
 use crate::functions::aes_decrypt::aes_decrypt;
-use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::writer::{create_dir, create_file};
 
 use super::parse_zip::Item;
@@ -60,14 +59,6 @@ impl Item {
 
             create_file(&data, fp_str)?;
         }
-
-        log(
-            LogLevel::Info,
-            format!(
-                "Successfully wrote file: {}",
-                fp.file_name().unwrap_or_default().to_string_lossy()
-            ),
-        );
 
         Ok(())
     }
