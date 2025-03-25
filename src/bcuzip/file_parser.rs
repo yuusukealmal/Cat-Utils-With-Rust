@@ -86,10 +86,7 @@ pub mod length_count {
 
                 log(
                     LogLevel::Info,
-                    format!(
-                        "Success Write File Path: {} Offset: {} Size: {}",
-                        f.path, f.offset, f.size
-                    ),
+                    format!("Successfully wrote file: {}", f.path),
                 );
             }
         }

@@ -69,7 +69,6 @@ impl Item {
         log(
             LogLevel::Info,
             format!(
-                "Success Write File {}",
                 "Successfully wrote file: {}",
                 fp.file_name().unwrap_or_default().to_string_lossy()
             ),
