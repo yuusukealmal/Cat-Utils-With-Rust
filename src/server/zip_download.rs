@@ -1,5 +1,4 @@
-use std::fs::OpenOptions;
-use std::io::Write;
+use std::{fs::OpenOptions, io::Write};
 
 use futures::StreamExt;
 use reqwest::header::HeaderMap;
@@ -13,12 +12,13 @@ pub async fn download_zip(
     index: usize,
     version: &u32,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let cc = match cc {
-        "jp" => "battlecats".to_string(),
-        _ => format!("battlecats{}", cc),
+    let cc = if cc == "jp" {
+        "battlecats"
+    } else {
+        &format!("battlecats{}", cc)
     };
 
-    let version_fmt = if version < &1000000 {
+    let version_fmt = if *version < 1000000 {
         format!("{}_{}_{}", cc, version, index)
     } else {
         format!(
@@ -32,13 +32,15 @@ pub async fn download_zip(
 
     let cloudfront = cloudfront::CloudFrontSign::new();
 
-    let sign = match cloudfront.generate_signed_cookie("https://nyanko-assets.ponosgames.com/*") {
-        Ok(sign) => sign,
-        Err(e) => {
-            println!("Error: {}", e);
-            return Err(e.into());
-        }
-    };
+    let sign = cloudfront
+        .generate_signed_cookie("https://nyanko-assets.ponosgames.com/*")
+        .map_err(|e| {
+            log(
+                LogLevel::Error,
+                format!("Error generating signed cookie: {}", e),
+            );
+            e
+        })?;
 
     let mut headers = HeaderMap::new();
     headers.insert("accept-encoding", "gzip".parse()?);
@@ -55,25 +57,31 @@ pub async fn download_zip(
         cc, version_fmt
     );
 
-    log(LogLevel::Info, format!("Downloading zip {}", version_fmt));
+    log(LogLevel::Info, format!("Downloading zip: {}", version_fmt));
 
     let client = Client::new();
     let response = client.get(&url).headers(headers).send().await?;
+
+    let temp_dir_path = std::env::temp_dir().join("temp.zip");
 
     let mut file = OpenOptions::new()
         .create(true)
         .write(true)
         .truncate(true)
-        .open(format!("{}/temp.zip", std::env::temp_dir().display()))?;
+        .open(&temp_dir_path)?;
 
     let mut stream = response.bytes_stream();
-
     while let Some(chunk) = stream.next().await {
         let chunk = chunk?;
         file.write_all(&chunk)?;
     }
 
     file.flush()?;
+
+    log(
+        LogLevel::Info,
+        format!("Download completed: {}", version_fmt),
+    );
 
     Ok(())
 }

@@ -26,8 +26,8 @@ impl Item {
             std::io::Error::new(std::io::ErrorKind::InvalidInput, "Invalid file path")
         })?;
 
-        if fp_str.contains(".ogg") || fp_str.contains(".caf") {
-            create_file(&content, fp_str)?;
+        if fp_str.contains("Audio") {
+            create_file(content, fp_str)?;
         } else {
             match item {
                 "ImageDataLocal" => {
@@ -75,7 +75,7 @@ impl Item {
         log(
             LogLevel::Info,
             format!(
-                "Success Write File {}",
+                "Successfully wrote file: {}",
                 fp.file_name().unwrap_or_default().to_string_lossy()
             ),
         );

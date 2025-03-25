@@ -18,7 +18,7 @@ pub mod version_details {
         }
     }
 
-    pub fn get_address(data: &Vec<u8>, pattern: Vec<u32>, start: Option<usize>) -> Option<usize> {
+    pub fn get_address(data: &Vec<u8>, pattern: &[u32], start: Option<usize>) -> Option<usize> {
         let pattern_bytes: Vec<u8> = pattern.iter().flat_map(|num| num.to_le_bytes()).collect();
 
         match start {
@@ -39,8 +39,10 @@ pub mod version_details {
         let end_address = end.unwrap_or(data.len());
 
         let mut i = start_address;
-        while i < end_address {
-            versions.push(u32::from_le_bytes(data[i..i + 4].try_into().unwrap()));
+        while i + 4 <= end_address {
+            if let Ok(bytes) = data[i..i + 4].try_into() {
+                versions.push(u32::from_le_bytes(bytes));
+            }
             i += 4;
         }
 
@@ -56,10 +58,10 @@ pub fn get_version(cc: &str) -> Result<Vec<u32>, Box<dyn std::error::Error>> {
     BufReader::new(file).read_to_end(&mut file_data)?;
 
     let start_versions = version_details::get_start_bytes_by_cc(cc).unwrap();
-    let start_address = version_details::get_address(&file_data, start_versions, None);
+    let start_address = version_details::get_address(&file_data, &start_versions, None);
 
-    let end_address_1 = version_details::get_address(&file_data, vec![0xFFFFFFFF], start_address);
-    let end_address_2 = version_details::get_address(&file_data, vec![0, 0, 0, 0], start_address);
+    let end_address_1 = version_details::get_address(&file_data, &[0xFFFFFFFF], start_address);
+    let end_address_2 = version_details::get_address(&file_data, &[0, 0, 0, 0], start_address);
 
     let end_address = match (end_address_1, end_address_2) {
         (Some(end_address_1), Some(end_address_2)) => min(end_address_1, end_address_2),
@@ -67,7 +69,7 @@ pub fn get_version(cc: &str) -> Result<Vec<u32>, Box<dyn std::error::Error>> {
         (None, Some(end_address)) => end_address,
         (None, None) => {
             log(LogLevel::Error, "Failed to find address".to_string());
-            panic!("Failed to find address");
+            return Err("Address not found".into());
         }
     };
 
