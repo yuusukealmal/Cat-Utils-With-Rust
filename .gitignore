@@ -3,3 +3,6 @@
 *.apk
 *.xapk
 *.zip
+
+.env
+*.pem
