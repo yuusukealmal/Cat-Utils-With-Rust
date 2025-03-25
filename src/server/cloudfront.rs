@@ -1,10 +1,11 @@
+use std::error::Error;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use base64::{engine::general_purpose, Engine as _};
-use rsa::{pkcs8::DecodePrivateKey, Pkcs1v15Sign, RsaPrivateKey};
-use serde_json::json;
+use base64::engine::general_purpose;
+use base64::Engine;
+use pkcs8::DecodePrivateKey;
+use rsa::{pkcs1v15::Pkcs1v15Sign, RsaPrivateKey}; // 直接使用 pkcs1v15 模組
 use sha1::{Digest, Sha1};
-use std::error::Error;
 
 pub struct CloudFrontSign {
     cf_private_key: String,
@@ -13,7 +14,8 @@ pub struct CloudFrontSign {
 
 impl CloudFrontSign {
     pub fn new() -> Self {
-        let cf_private_key = "-----BEGIN PRIVATE KEY-----
+        let cf_private_key = "
+-----BEGIN PRIVATE KEY-----
 MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCORX64nic2atwz
 1VsqbI/jqHwrdrSktgjoBrFWqgziJXrVvHVZ+shhUfRxa4BKvdRigbZuNjrmFfUE
 Scxdfj72QAe0SRxgMhaloPikbSUlvrfOacFOiQD7dMtwv8DAAjvshKU/qmzdkp1j
@@ -40,7 +42,9 @@ jUW0rasTzMT5XdgYpYQXTmaVy1gtoUIU81AtT8S7IQKBgQC2F7xdWSv7Pw+MimN2
 Tx8VMiCUkL+5uNJwvWw2rrEHvt2jphD016pgdutlgI28qoXwcleLxAz1Ey1njCTO
 19bsOA9bhuwbIrIb93nGHyRrQe1L7PdBjwlIqEj8R08Z/oGQsXhqzgF9KfO2V46i
 oPSxLzYw2sBjmwVooXMVr6GxEw==
------END PRIVATE KEY-----".to_string();
+-----END PRIVATE KEY-----
+"
+        .to_string();
 
         let cf_key_pair_id = "APKAJO6MLYTURWB2NOWQ".to_string();
 
@@ -51,7 +55,6 @@ oPSxLzYw2sBjmwVooXMVr6GxEw==
     }
 
     fn make_policy(&self, url: &str) -> String {
-        let fixed_timestamp = 1710000000; // 固定時間戳（示例值）
         format!(
             r#"{{
                 "Statement": [{{
@@ -63,35 +66,46 @@ oPSxLzYw2sBjmwVooXMVr6GxEw==
                 }}]
             }}"#,
             url,
-            fixed_timestamp + 60 * 60,
-            fixed_timestamp - 60 * 60
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs()
+                + 60 * 60,
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs()
+                - 60 * 60
         )
+        .replace(" ", "")
+        .replace("\n", "")
     }
-    
 
     fn make_signature(&self, message: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+        // Load the private key from a PEM string
         let private_key = RsaPrivateKey::from_pkcs8_pem(&self.cf_private_key)?;
-        // 注意：此處需與 Python 一致，直接簽署原始消息（無需顯式哈希）
-        let signature = private_key.sign(
-            Pkcs1v15Sign::new_unprefixed(),
-            message.as_bytes()
-        )?;
+        let message_bytes = message.as_bytes();
+
+        // Create a SHA-1 hasher and hash the message
+        let mut hasher = Sha1::new();
+        hasher.update(message_bytes);
+        let hashed = hasher.finalize();
+
+        // Sign the hashed message using PKCS#1 v1.5 with SHA-1
+        let signature = private_key.sign(Pkcs1v15Sign::new::<Sha1>(), &hashed)?;
+
         Ok(signature)
     }
-
-    fn generate_signature(&self, policy: &str) -> Result<String, Box<dyn Error>> {
-        let signature = self.make_signature(policy)?;
-        Ok(general_purpose::STANDARD.encode(signature))
-    }
-
     pub fn generate_signed_cookie(&self, url: &str) -> Result<String, Box<dyn Error>> {
         let policy = self.make_policy(url);
-        let signature = self.generate_signature(&policy)?;
-        let encoded_policy = general_purpose::STANDARD.encode(policy.as_bytes());
+        let signature = self.make_signature(&policy)?;
+
+        let encoded_policy = general_purpose::STANDARD.encode(&policy);
+        let encoded_signature = general_purpose::STANDARD.encode(&signature);
 
         Ok(format!(
             "CloudFront-Key-Pair-Id={}; CloudFront-Policy={}; CloudFront-Signature={}",
-            self.cf_key_pair_id, encoded_policy, signature
+            self.cf_key_pair_id, encoded_policy, encoded_signature
         ))
     }
 }
