@@ -4,3 +4,4 @@ pub mod logger;
 pub mod utils;
 pub mod valid_apk;
 pub mod writer;
+pub mod duration;

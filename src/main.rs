@@ -2,6 +2,8 @@ use std::io;
 
 use colored::Colorize;
 
+use functions::duration::count_duration;
+
 mod bcuzip;
 mod event;
 mod functions;
@@ -12,6 +14,7 @@ mod server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let launch_time = std::time::Instant::now();
     dotenv::dotenv().ok();
     loop {
         let mut input = String::new();
@@ -23,35 +26,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         match number {
             1 => {
+                let t = std::time::Instant::now();
                 event::handle::get_data().await?;
-                println!("{}", "\n活動檔案下載完成\n".green());
+                println!("\n{} 花費: {}\n", "活動檔案下載完成".green(), count_duration(t.elapsed()));
             }
             2 => {
+                let t = std::time::Instant::now();
                 placement::handle::get_announcement().await?;
-                println!("{}", "\n公告下載完成\n".green());
+                println!("\n{} 花費: {}\n", "公告下載完成".green(), count_duration(t.elapsed()));
             }
             3 => {
+                let t = std::time::Instant::now();
                 local::handle::dump_apk()?;
-                println!("{}", "\n拆包完成\n".green());
+                println!("\n{} 花費: {}\n", "拆包完成".green(), count_duration(t.elapsed()));
             }
             4 => {
+                let t = std::time::Instant::now();
                 server::handle::get_server_file().await?;
-                println!("{}", "\n伺服器檔案下載完成\n".green());
+                println!("\n{} 花費: {}\n", "伺服器檔案下載完成".green(), count_duration(t.elapsed()));
             }
             5 => {
+                let t = std::time::Instant::now();
                 bcuzip::handle::decrypt_bcuzip()?;
-                println!("{}", "\n解密完成\n".green());
+                println!("\n{} 花費: {}\n", "解密完成".green(), count_duration(t.elapsed()));
             }
             6 => {
+                let t = std::time::Instant::now();
                 let seed = seed::handle::get_seed().await?;
-                println!("{}", format!("\n取得種子碼: {seed}\n").green());
+                println!("\n取得種子碼: {} 花費: {}\n", format!("{seed}").green(), count_duration(t.elapsed()));
             }
             7 => {
-                println!("{}", "\n謝謝使用".green());
+                println!("\n{} 使用時間: {}", "謝謝使用".green(), count_duration(launch_time.elapsed()));
                 break;
             }
             _ => {
-                eprintln!("{}", "\nError: Invalid input.\n".red());
+                eprintln!("\n{}\n", "Error: Invalid input.".red());
             }
         }
     }
