@@ -28,35 +28,63 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             1 => {
                 let t = std::time::Instant::now();
                 event::handle::get_data().await?;
-                println!("\n{} 花費: {}\n", "活動檔案下載完成".green(), count_duration(t.elapsed()));
+                println!(
+                    "\n{} 花費: {}\n",
+                    "活動檔案下載完成".green(),
+                    count_duration(t.elapsed())
+                );
             }
             2 => {
                 let t = std::time::Instant::now();
                 placement::handle::get_announcement().await?;
-                println!("\n{} 花費: {}\n", "公告下載完成".green(), count_duration(t.elapsed()));
+                println!(
+                    "\n{} 花費: {}\n",
+                    "公告下載完成".green(),
+                    count_duration(t.elapsed())
+                );
             }
             3 => {
                 let t = std::time::Instant::now();
                 local::handle::dump_apk()?;
-                println!("\n{} 花費: {}\n", "拆包完成".green(), count_duration(t.elapsed()));
+                println!(
+                    "\n{} 花費: {}\n",
+                    "拆包完成".green(),
+                    count_duration(t.elapsed())
+                );
             }
             4 => {
                 let t = std::time::Instant::now();
                 server::handle::get_server_file().await?;
-                println!("\n{} 花費: {}\n", "伺服器檔案下載完成".green(), count_duration(t.elapsed()));
+                println!(
+                    "\n{} 花費: {}\n",
+                    "伺服器檔案下載完成".green(),
+                    count_duration(t.elapsed())
+                );
             }
             5 => {
                 let t = std::time::Instant::now();
                 bcuzip::handle::decrypt_bcuzip()?;
-                println!("\n{} 花費: {}\n", "解密完成".green(), count_duration(t.elapsed()));
+                println!(
+                    "\n{} 花費: {}\n",
+                    "解密完成".green(),
+                    count_duration(t.elapsed())
+                );
             }
             6 => {
                 let t = std::time::Instant::now();
                 let seed = seed::handle::get_seed().await?;
-                println!("\n取得種子碼: {} 花費: {}\n", format!("{seed}").green(), count_duration(t.elapsed()));
+                println!(
+                    "\n取得種子碼: {} 花費: {}\n",
+                    format!("{seed}").green(),
+                    count_duration(t.elapsed())
+                );
             }
             7 => {
-                println!("\n{} 使用時間: {}", "謝謝使用".green(), count_duration(launch_time.elapsed()));
+                println!(
+                    "\n{} 使用時間: {}",
+                    "謝謝使用".green(),
+                    count_duration(launch_time.elapsed())
+                );
                 break;
             }
             _ => {

@@ -27,10 +27,6 @@ pub async fn get_announcement() -> Result<(), std::io::Error> {
 
         let path = PathBuf::from(&output_path).join(format!("{cc}_placement.json"));
         create_file(json.as_bytes(), &path.to_string_lossy())?;
-        log(
-            LogLevel::Info,
-            format!("Success Write Placement to {}", path.to_string_lossy()),
-        );
     }
 
     Ok(())

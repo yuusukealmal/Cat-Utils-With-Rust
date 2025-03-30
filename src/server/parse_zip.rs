@@ -1,8 +1,7 @@
 use std::fs::File;
-use std::io::{self, Read, Write};
+use std::io::{self, Read};
 use std::path::PathBuf;
 
-use colored::Colorize;
 use zip::ZipArchive;
 
 use crate::functions::aes_decrypt::aes_decrypt;
@@ -56,7 +55,16 @@ fn read_file_from_zip(zip: &mut ZipArchive<File>, file_name: &str) -> Result<Vec
 pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let file = File::open(std::env::temp_dir().join("temp.zip"))?;
     let mut zip = ZipArchive::new(file)?;
-    let package = format!("jp.co.ponos.battlecats.{} Server", cc);
+
+    let folder_name = match cc {
+        "jp" => "にゃんこ大戦争",
+        "tw" => "貓咪大戰爭",
+        "en" => "The Battle Cats",
+        "kr" => "냥코대전쟁",
+        _ => "Unknown",
+    };
+
+    let package = format!("{} Server", folder_name);
 
     let item_names: Vec<String> = zip
         .file_names()
@@ -78,13 +86,6 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
             })?;
 
             create_file(&read_file_from_zip(&mut zip, &item_name)?, fp_str)?;
-
-            print!(
-                "\r\x1b[2K{} {}",
-                "[Info]".green(),
-                format!("Writing audio file: {}", item_name)
-            );
-            io::stdout().flush().unwrap();
         } else {
             let item_list_data = read_file_from_zip(&mut zip, &format!("{}.list", item_name))?;
             let item_pack_data = read_file_from_zip(&mut zip, &format!("{}.pack", item_name))?;
@@ -101,8 +102,6 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
                 )
             })?;
 
-            let total_lines = list_str.lines().count().saturating_sub(1);
-
             for (i, line) in list_str.lines().enumerate().skip(1) {
                 match Item::from_line(line) {
                     Ok(item) => {
@@ -113,25 +112,7 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
                             .join(item_name.clone())
                             .join(&item.name);
 
-                        match item.write_file(&item_name, content, final_path) {
-                            Ok(_) => {
-                                let progress = format!(
-                                    "{}/{} ({}%) Writing file: {}",
-                                    i,
-                                    total_lines,
-                                    (i * 100 / total_lines.max(1)),
-                                    item.name
-                                );
-                                print!("\r\x1b[2K{} {}", "[Info]".green(), progress);
-                                io::stdout().flush().unwrap();
-                            }
-                            Err(e) => {
-                                log(
-                                    LogLevel::Warning,
-                                    format!("Error writing file {}: {}", item.name, e),
-                                );
-                            }
-                        }
+                        item.write_file(&item_name, content, final_path)?;
                     }
                     Err(e) => {
                         log(
@@ -143,7 +124,6 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
             }
         }
     }
-    println!();
 
     Ok(())
 }

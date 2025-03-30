@@ -43,8 +43,6 @@ pub async fn get_server_file() -> Result<(), Box<dyn std::error::Error>> {
                     .ok_or("Error Country Code")?,
             };
 
-            log(LogLevel::Info, format!("Package Name: {}", package));
-
             let file = File::open(&apk)?;
             let mut zip = ZipArchive::new(file)?;
 

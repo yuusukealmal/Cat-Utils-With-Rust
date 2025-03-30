@@ -43,7 +43,6 @@ pub async fn parse_server(
                 let mut lib_data = Vec::new();
                 lib.read_to_end(&mut lib_data)?;
 
-                log(LogLevel::Info, format!("Get Architecture: {}", arch));
                 std::fs::write(&temp_path, lib_data)?;
                 break;
             }
@@ -51,11 +50,6 @@ pub async fn parse_server(
     }
 
     let versions = get_version::get_version(cc)?;
-
-    log(
-        LogLevel::Info,
-        format!("Get Versions Length: {}", versions.len()),
-    );
 
     for (index, version) in versions.iter().enumerate() {
         zip_download::download_zip(cc, index, version).await?;

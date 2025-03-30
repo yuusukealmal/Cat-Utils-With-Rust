@@ -101,10 +101,5 @@ pub async fn download_zip(
 
     file.flush()?;
 
-    log(
-        LogLevel::Info,
-        format!("Download completed: {}", version_fmt),
-    );
-
     Ok(())
 }

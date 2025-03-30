@@ -25,6 +25,7 @@ pub fn dump_apk() -> Result<(), Box<dyn std::error::Error>> {
         format!("Selected file: {}", apk.to_string_lossy()),
     );
 
+    println!("請選擇輸出目錄");
     let output_path = file_dialog(false, None, None)
         .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "No folder selected"))?
         .to_str()
@@ -46,8 +47,6 @@ pub fn dump_apk() -> Result<(), Box<dyn std::error::Error>> {
                     "jp.co.ponos.battlecats" => "jp",
                     _ => &package[package.len().saturating_sub(2)..],
                 };
-
-                log(LogLevel::Info, format!("Package Name: {}", package));
 
                 let file = File::open(&apk)?;
                 let mut zip = ZipArchive::new(file)?;

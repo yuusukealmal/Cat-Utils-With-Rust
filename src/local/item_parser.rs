@@ -1,9 +1,8 @@
 use std::error::Error;
 use std::fs::File;
-use std::io::{self, Read, Write};
+use std::io::{self, Read};
 use std::path::PathBuf;
 
-use colored::Colorize;
 use zip::ZipArchive;
 
 use super::apk_parser::{Item, APK};
@@ -92,32 +91,22 @@ impl APK {
 
                 let content = &item_pack_data[item_data.start..item_data.start + item_data.arrange];
 
-                let package = format!("jp.co.ponos.battlecats.{} Local", cc);
+                let folder_name = match cc {
+                    "jp" => "にゃんこ大戦争",
+                    "tw" => "貓咪大戰爭",
+                    "en" => "The Battle Cats",
+                    "kr" => "냥코대전쟁",
+                    _ => "Unknown",
+                };
+
+                let package = format!("{} Local", folder_name);
                 let parent_folder = item.rsplit('/').next().unwrap_or("default_folder");
                 let output_path = PathBuf::from(output_path)
                     .join(package)
                     .join(parent_folder)
                     .join(&item_data.name);
 
-                match item_data.write_file(cc, item, content, output_path) {
-                    Ok(_) => {
-                        let progress = format!(
-                            "{}/{} ({}%) Writing file: {}",
-                            i,
-                            list_str.lines().count() - 1,
-                            i * 100 / (list_str.lines().count() - 1).max(1),
-                            item_data.name
-                        );
-                        print!("\r\x1b[2K{} {}", "[Info]".green(), progress);
-                        io::stdout().flush().unwrap();
-                    }
-                    Err(e) => {
-                        log(
-                            LogLevel::Warning,
-                            format!("Error writing file {}: {}", item_data.name, e),
-                        );
-                    }
-                }
+                item_data.write_file(cc, item, content, output_path)?;
             } else {
                 log(
                     LogLevel::Warning,
@@ -125,7 +114,6 @@ impl APK {
                 );
             }
         }
-        println!();
 
         Ok(())
     }
