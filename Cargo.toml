@@ -28,3 +28,5 @@ indicatif = "0.17.11"
 ua_generator = { git = "https://github.com/spider-rs/ua_generator.git", version = "0.5.9" }
 select = "0.6.0"
 serde = "1.0"
+chrono = "0.4"
+git2 = "0.20.0"

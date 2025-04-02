@@ -1,5 +1,6 @@
 use super::get_token::EventData;
 use crate::functions::file_selector::file_dialog;
+use crate::functions::git::{commit_or_push, Method};
 use crate::functions::logger::logger::{log, LogLevel};
 
 pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> {
@@ -44,6 +45,9 @@ pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::err
     for cc in ["jp", "tw", "en", "kr"] {
         for file in ["sale", "gatya", "item"] {
             event.to_file(output_path.clone(), cc, file).await?;
+        }
+        if update.unwrap_or(false) {
+            commit_or_push(Method::COMMIT, Some(&format!("Update Certain Game {} Event Data", cc.to_uppercase())))?;
         }
     }
 

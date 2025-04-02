@@ -7,3 +7,4 @@ pub mod md5_check;
 pub mod utils;
 pub mod valid_apk;
 pub mod writer;
+pub mod git;

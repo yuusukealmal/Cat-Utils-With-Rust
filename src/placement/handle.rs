@@ -4,6 +4,7 @@ use super::requests;
 use crate::functions::file_selector::file_dialog;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::writer::create_file;
+use crate::functions::git::{commit_or_push, Method};
 
 pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> {
     let output_path = match update {
@@ -79,6 +80,10 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
                 .join(format!("{}.png", uuid));
 
             create_file(&data, &path.to_string_lossy())?;
+        }
+
+        if update.unwrap_or(false) {
+            commit_or_push(Method::COMMIT, Some(&format!("Update Certain Game  {} Announcement", cc.to_uppercase())))?;
         }
     }
 
