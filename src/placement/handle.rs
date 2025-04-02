@@ -57,7 +57,7 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
 
         let path = PathBuf::from(&output_path)
             .join(&folder_name)
-            .join(format!("{cc}_placement.json"));
+            .join("placement.json");
 
         create_file(json.as_bytes(), &path.to_string_lossy())?;
 
