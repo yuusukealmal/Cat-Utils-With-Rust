@@ -1,7 +1,5 @@
-use std::{
-    fs::{self, OpenOptions},
-    io::Write,
-};
+use std::fs::{self, OpenOptions};
+use std::io::{BufWriter, Write};
 
 use futures::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -35,26 +33,26 @@ pub async fn download_apk(cc: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     let temp_dir_path = std::env::temp_dir().join("temp.xapk");
 
-    let mut file = OpenOptions::new()
+    let file = OpenOptions::new()
         .create(true)
         .write(true)
         .truncate(true)
         .open(&temp_dir_path)?;
+    let mut writer = BufWriter::new(file);
 
     let mut stream = response.bytes_stream();
     let mut downloaded: u64 = 0;
 
     while let Some(chunk) = stream.next().await {
         let chunk = chunk?;
-        file.write_all(&chunk)?;
+        writer.write_all(&chunk)?;
         downloaded += chunk.len() as u64;
 
         pb.set_position(downloaded);
     }
 
+    writer.flush()?;
     pb.finish_with_message("Download completed!");
-
-    file.flush()?;
 
     Ok(())
 }

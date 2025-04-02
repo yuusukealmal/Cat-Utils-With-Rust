@@ -7,12 +7,12 @@ use ua_generator::ua::spoof_ua;
 
 use crate::functions::utils::parse_version_int;
 
-async fn requests_version(cc: &str) -> Result<String, Box<dyn std::error::Error>> {
+async fn requests_version(url: &str) -> Result<String, Box<dyn std::error::Error>> {
     let ua = spoof_ua();
 
     let client = reqwest::Client::new();
     let body = client
-        .get(cc)
+        .get(url)
         .header("User-Agent", ua)
         .send()
         .await?
@@ -21,12 +21,11 @@ async fn requests_version(cc: &str) -> Result<String, Box<dyn std::error::Error>
 
     let document = Document::from(body.as_str());
 
-    let meta = document
-        .find(Attr("name", "description"))
-        .next()
-        .ok_or("Meta tag not found")?;
-
-    let content = meta.attr("content").ok_or("No content attribute")?;
+    let content = document
+    .find(Attr("name", "description"))
+    .next()
+    .and_then(|meta| meta.attr("content"))
+    .ok_or("No meta description found")?;
 
     let re = Regex::new(r"\b\d+\.\d+\.\d+\b")?;
     let version = re.find(content).ok_or("Version not found")?.as_str();
