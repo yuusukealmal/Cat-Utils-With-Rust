@@ -46,6 +46,8 @@ pub async fn get_server_file(update: Option<bool>) -> Result<(), Box<dyn std::er
         }
     };
 
+    log(LogLevel::Info, "Start to get event data".to_string());
+
     match apk.extension().and_then(OsStr::to_str) {
         Some("apk") => {
             valid_apk()?;

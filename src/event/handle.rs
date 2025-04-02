@@ -32,6 +32,8 @@ pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::err
         }
     };
 
+    log(LogLevel::Info, "Start to get event data".to_string());
+
     let mut event = EventData {
         account_code: None,
         password: None,

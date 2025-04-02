@@ -35,6 +35,8 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
         }
     };
 
+    log(LogLevel::Info, "Start to get event data".to_string());
+
     for cc in ["jp", "tw", "en", "kr"] {
         let cc_suffix = match cc {
             "jp" => "",
