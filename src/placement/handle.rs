@@ -35,6 +35,19 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
     };
 
     for cc in ["jp", "tw", "en", "kr"] {
+        let cc_suffix = match cc {
+            "jp" => "",
+            _ => &format!("/{}", cc),
+        };
+
+        let folder_name = match cc {
+            "jp" => "にゃんこ大戦争",
+            "tw" => "貓咪大戰爭",
+            "en" => "The Battle Cats",
+            "kr" => "냥코대전쟁",
+            _ => "Unknown",
+        };
+
         let result = requests::get_placement(cc)
             .await
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
@@ -42,8 +55,31 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
         let json =
             serde_json::to_string_pretty(&serde_json::from_str::<serde_json::Value>(&result)?)?;
 
-        let path = PathBuf::from(&output_path).join(format!("{cc}_placement.json"));
+        let path = PathBuf::from(&output_path)
+            .join(&folder_name)
+            .join(format!("{cc}_placement.json"));
+
         create_file(json.as_bytes(), &path.to_string_lossy())?;
+
+        let json: serde_json::Value = serde_json::from_str(&result)?;
+
+        for notice in json["notice"]["data"].as_array().unwrap() {
+            let uuid = notice["id"].as_str().unwrap();
+
+            let url = String::from(format!(
+                "https://ponosgames.com/information/appli/battlecats/placement{}/notice_{}.png",
+                cc_suffix, uuid
+            ));
+
+            let data = reqwest::get(&url).await.unwrap().bytes().await.unwrap();
+
+            let path = PathBuf::from(&output_path)
+                .join(&folder_name)
+                .join("picture")
+                .join(format!("{}.png", uuid));
+
+            create_file(&data, &path.to_string_lossy())?;
+        }
     }
 
     Ok(())
