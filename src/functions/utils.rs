@@ -12,6 +12,40 @@ pub fn zfill(version: &str) -> u32 {
         .expect("Failed to parse version")
 }
 
+pub fn parse_version_int(version: &str) -> Result<u32, String> {
+    let mut result = String::new();
+
+    for part in version.split('.') {
+        if part.len() > 2 {
+            return Err(format!("Error Version Slice: {}", part));
+        }
+        result.push_str(&format!("{:0>2}", part));
+    }
+
+    result
+        .parse::<u32>()
+        .map_err(|e| format!("Failed to parse version: {}", e))
+}
+
+#[allow(dead_code)]
+pub fn parse_version_str(version: u64) -> String {
+    let version_str = format!(
+        "{:0>width$}",
+        version,
+        width = (version.to_string().len() + 1) / 2 * 2
+    );
+    version_str
+        .as_bytes()
+        .chunks(2)
+        .map(|chunk| {
+            let s = std::str::from_utf8(chunk).unwrap();
+            let cleaned = s.trim_start_matches('0');
+            if cleaned.is_empty() { "0" } else { cleaned }.to_string()
+        })
+        .collect::<Vec<_>>()
+        .join(".")
+}
+
 pub fn generate_random_hash(length: usize) -> String {
     let mut rng = rand::rng();
     let chars = b"0123456789abcdef";

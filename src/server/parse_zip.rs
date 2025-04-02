@@ -49,6 +49,7 @@ fn read_file_from_zip(zip: &mut ZipArchive<File>, file_name: &str) -> Result<Vec
     let mut file = zip.by_name(file_name)?;
     let mut buf = Vec::new();
     file.read_to_end(&mut buf)?;
+
     Ok(buf)
 }
 
@@ -64,8 +65,6 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
         _ => "Unknown",
     };
 
-    let package = format!("{} Server", folder_name);
-
     let item_names: Vec<String> = zip
         .file_names()
         .filter(|name| name.contains(".list") || name.contains(".ogg") || name.contains(".caf"))
@@ -73,9 +72,10 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
         .collect();
 
     for item_name in item_names {
+        log(LogLevel::Info, format!("Start to Parse: {}", item_name));
         if item_name.contains(".ogg") || item_name.contains(".caf") {
             let final_path = PathBuf::from(output_path)
-                .join(&package)
+                .join(folder_name)
                 .join("Audio")
                 .join(item_name.clone());
 
@@ -108,7 +108,7 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
                         let content = &item_pack_data[item.start..item.start + item.arrange];
 
                         let final_path = PathBuf::from(output_path)
-                            .join(&package)
+                            .join(folder_name)
                             .join(item_name.clone())
                             .join(&item.name);
 

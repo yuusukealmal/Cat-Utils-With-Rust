@@ -41,7 +41,7 @@ impl APK {
         output_path: &str,
         item: &str,
     ) -> Result<(), std::io::Error> {
-        log(LogLevel::Info, format!("Parsing item: {}", item));
+        log(LogLevel::Info, format!("Start to Parse: {}", item));
 
         let file = File::open(std::env::temp_dir().join("InstallPack.apk"))?;
         let mut zip = ZipArchive::new(file)?;
@@ -99,10 +99,9 @@ impl APK {
                     _ => "Unknown",
                 };
 
-                let package = format!("{} Local", folder_name);
                 let parent_folder = item.rsplit('/').next().unwrap_or("default_folder");
                 let output_path = PathBuf::from(output_path)
-                    .join(package)
+                    .join(folder_name)
                     .join(parent_folder)
                     .join(&item_data.name);
 

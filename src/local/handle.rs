@@ -7,35 +7,56 @@ use crate::functions::file_selector::{self, file_dialog};
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::valid_apk::valid_pack::{valid_apk, valid_xapk};
 
-pub fn dump_apk() -> Result<(), Box<dyn std::error::Error>> {
-    println!("請選擇安裝檔 (.apk/.xapk)");
-    let file =
-        file_selector::file_dialog(true, Some("BC Apk".to_string()), Some(vec!["apk", "xapk"]));
+pub fn dump_apk(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> {
+    let (apk, output_path) = match update {
+        Some(true) => {
+            let apk = std::env::temp_dir().join("temp.xapk");
+            let mut cwd = std::env::current_dir()?.to_str().unwrap().to_string();
 
-    let apk = match file {
-        Some(f) => f,
-        None => {
-            log(LogLevel::Error, "No file selected.".to_string());
-            return Ok(());
+            cwd.push_str("\\Data\\Local\\");
+
+            (apk, cwd)
+        }
+        _ => {
+            println!("請選擇安裝檔 (.apk/.xapk)");
+            let file = file_selector::file_dialog(
+                true,
+                Some("BC Apk".to_string()),
+                Some(vec!["apk", "xapk"]),
+            );
+
+            let apk = match file {
+                Some(f) => f,
+                None => {
+                    log(LogLevel::Error, "No file selected.".to_string());
+                    return Ok(());
+                }
+            };
+
+            log(
+                LogLevel::Info,
+                format!("Selected file: {}", apk.to_string_lossy()),
+            );
+
+            println!("請選擇輸出目錄");
+            let output_path = file_dialog(false, None, None)
+                .ok_or_else(|| {
+                    std::io::Error::new(std::io::ErrorKind::NotFound, "No folder selected")
+                })?
+                .to_str()
+                .ok_or_else(|| {
+                    std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid output path")
+                })?
+                .to_string();
+
+            log(
+                LogLevel::Info,
+                format!("Selected output folder: {}", output_path),
+            );
+
+            (apk, output_path)
         }
     };
-
-    log(
-        LogLevel::Info,
-        format!("Selected file: {}", apk.to_string_lossy()),
-    );
-
-    println!("請選擇輸出目錄");
-    let output_path = file_dialog(false, None, None)
-        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "No folder selected"))?
-        .to_str()
-        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid output path"))?
-        .to_string();
-
-    log(
-        LogLevel::Info,
-        format!("Selected output folder: {}", output_path),
-    );
 
     match apk.extension().and_then(OsStr::to_str) {
         Some("apk") => {
