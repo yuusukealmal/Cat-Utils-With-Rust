@@ -58,7 +58,7 @@ pub fn dump_apk(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> 
         }
     };
 
-    log(LogLevel::Info, "Start to get event data".to_string());
+    log(LogLevel::Info, "Start to get local data".to_string());
 
     match apk.extension().and_then(OsStr::to_str) {
         Some("apk") => {
