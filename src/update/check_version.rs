@@ -22,10 +22,10 @@ async fn requests_version(url: &str) -> Result<String, Box<dyn std::error::Error
     let document = Document::from(body.as_str());
 
     let content = document
-    .find(Attr("name", "description"))
-    .next()
-    .and_then(|meta| meta.attr("content"))
-    .ok_or("No meta description found")?;
+        .find(Attr("name", "description"))
+        .next()
+        .and_then(|meta| meta.attr("content"))
+        .ok_or("No meta description found")?;
 
     let re = Regex::new(r"\b\d+\.\d+\.\d+\b")?;
     let version = re.find(content).ok_or("Version not found")?.as_str();
