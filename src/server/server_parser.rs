@@ -64,7 +64,11 @@ pub async fn parse_server(
     let mut data_mut = data.clone();
 
     for (index, version) in versions.iter().enumerate() {
-        if server_versions[&format!("assets{}", index)] != tsvs[index] {
+        let current_version = server_versions
+            .get(&format!("assets{}", index))
+            .unwrap_or(&serde_json::Value::Null);
+
+        if current_version != &tsvs[index] {
             zip_download::download_zip(cc, index, version).await?;
             parse_zip::parse_zip(cc, output_path)?;
             data_mut[&cc.to_uppercase()]["server"][&format!("assets{}", index)] =
