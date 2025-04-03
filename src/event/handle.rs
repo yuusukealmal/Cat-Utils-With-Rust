@@ -8,7 +8,7 @@ pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::err
         Some(true) => {
             let cwd = std::env::current_dir()?;
             let mut output_path = cwd.to_str().unwrap().to_string();
-            output_path.push_str("\\Data\\Event");
+            output_path.push_str("\\Data");
 
             output_path
         }
@@ -49,7 +49,13 @@ pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::err
             event.to_file(output_path.clone(), cc, file).await?;
         }
         if update.unwrap_or(false) {
-            commit_or_push(Method::COMMIT, Some(&format!("Update Certain Game {} Event Data", cc.to_uppercase())))?;
+            commit_or_push(
+                Method::COMMIT,
+                Some(&format!(
+                    "Update Certain Game {} Event Data",
+                    cc.to_uppercase()
+                )),
+            )?;
         }
     }
 

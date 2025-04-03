@@ -1,6 +1,6 @@
-use std::path::Path;
 use std::fs::File;
 use std::io::{prelude::*, Result};
+use std::path::Path;
 
 pub fn create_dir(path: &str) -> Result<()> {
     std::fs::create_dir_all(path)?;

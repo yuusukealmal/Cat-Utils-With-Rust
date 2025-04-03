@@ -4,8 +4,8 @@ use serde_json::{Map, Value};
 
 use super::check_version::check_version;
 use super::download_apk::download_apk;
-use crate::functions::json_prettier::indent_json;
 use crate::functions::git::{commit_or_push, Method};
+use crate::functions::json_prettier::indent_json;
 use crate::functions::utils::parse_version_int;
 use crate::local::handle::dump_apk;
 use crate::server::handle::get_server_file;
@@ -28,7 +28,10 @@ pub async fn update() -> Result<(), Box<dyn std::error::Error>> {
                 data[&cc.0]["version"] = Value::Number(parse_version_int(&cc.1)?.into());
                 fs::write("data.json", indent_json(&data)?)?;
 
-                commit_or_push(Method::COMMIT, Some(&format!("Update Certain Game {} Files", cc.0)))?;
+                commit_or_push(
+                    Method::COMMIT,
+                    Some(&format!("Update Certain Game {} Files", cc.0)),
+                )?;
             }
             Err(e) => {
                 println!("Error downloading XAPK for cc: {}: {}", cc.0, e);

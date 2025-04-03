@@ -27,8 +27,9 @@ impl EventData {
         let data = reqwest::get(&url).await.unwrap().text().await.unwrap();
 
         let path = PathBuf::from(&output_path)
-        .join(&folder_name)
-        .join(&format!("{}.tsv", file));
+            .join(&folder_name)
+            .join("event")
+            .join(&format!("{}.tsv", file));
 
         create_file(data.as_bytes(), &path.to_string_lossy())?;
 

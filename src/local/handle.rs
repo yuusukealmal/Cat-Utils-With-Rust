@@ -13,7 +13,7 @@ pub fn dump_apk(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> 
             let apk = std::env::temp_dir().join("temp.xapk");
             let mut cwd = std::env::current_dir()?.to_str().unwrap().to_string();
 
-            cwd.push_str("\\Data\\Local\\");
+            cwd.push_str("\\Data");
 
             (apk, cwd)
         }

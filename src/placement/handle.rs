@@ -2,16 +2,16 @@ use std::path::PathBuf;
 
 use super::requests;
 use crate::functions::file_selector::file_dialog;
+use crate::functions::git::{commit_or_push, Method};
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::writer::create_file;
-use crate::functions::git::{commit_or_push, Method};
 
 pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> {
     let output_path = match update {
         Some(true) => {
             let cwd = std::env::current_dir()?;
             let mut output_path = cwd.to_str().unwrap().to_string();
-            output_path.push_str("\\Data\\Placement");
+            output_path.push_str("\\Data");
 
             output_path
         }
@@ -60,6 +60,7 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
 
         let path = PathBuf::from(&output_path)
             .join(&folder_name)
+            .join("placement")
             .join("placement.json");
 
         create_file(json.as_bytes(), &path.to_string_lossy())?;
@@ -78,6 +79,7 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
 
             let path = PathBuf::from(&output_path)
                 .join(&folder_name)
+                .join("placement")
                 .join("picture")
                 .join(format!("{}.png", uuid));
 
@@ -85,7 +87,13 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
         }
 
         if update.unwrap_or(false) {
-            commit_or_push(Method::COMMIT, Some(&format!("Update Certain Game  {} Announcement", cc.to_uppercase())))?;
+            commit_or_push(
+                Method::COMMIT,
+                Some(&format!(
+                    "Update Certain Game  {} Announcement",
+                    cc.to_uppercase()
+                )),
+            )?;
         }
     }
 

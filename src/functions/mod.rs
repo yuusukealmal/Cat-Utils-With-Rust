@@ -1,10 +1,10 @@
 pub mod aes_decrypt;
 pub mod duration;
 pub mod file_selector;
+pub mod git;
 pub mod json_prettier;
 pub mod logger;
 pub mod md5_check;
 pub mod utils;
 pub mod valid_apk;
 pub mod writer;
-pub mod git;

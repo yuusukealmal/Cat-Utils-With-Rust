@@ -5,7 +5,7 @@ use std::{env, process::Command};
 #[derive(PartialEq)]
 pub enum Method {
     COMMIT,
-    PUSH
+    PUSH,
 }
 
 pub fn commit_or_push(method: Method, msg: Option<&str>) -> Result<(), Error> {
@@ -45,9 +45,9 @@ pub fn commit_or_push(method: Method, msg: Option<&str>) -> Result<(), Error> {
 
     if method == Method::PUSH {
         Command::new("git")
-        .args(["push", "origin", "main"])
-        .output()
-        .expect("Failed to execute git push");
+            .args(["push", "origin", "main"])
+            .output()
+            .expect("Failed to execute git push");
 
         println!("{} Changes were pushed to the {} branch.", t_str, branch);
     }

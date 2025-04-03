@@ -102,6 +102,7 @@ impl APK {
                 let parent_folder = item.rsplit('/').next().unwrap_or("default_folder");
                 let output_path = PathBuf::from(output_path)
                     .join(folder_name)
+                    .join("local")
                     .join(parent_folder)
                     .join(&item_data.name);
 

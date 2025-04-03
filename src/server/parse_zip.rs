@@ -76,6 +76,7 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
         if item_name.contains(".ogg") || item_name.contains(".caf") {
             let final_path = PathBuf::from(output_path)
                 .join(folder_name)
+                .join("server")
                 .join("Audio")
                 .join(item_name.clone());
 
@@ -109,6 +110,7 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
 
                         let final_path = PathBuf::from(output_path)
                             .join(folder_name)
+                            .join("server")
                             .join(item_name.clone())
                             .join(&item.name);
 
