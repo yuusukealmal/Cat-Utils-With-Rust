@@ -2,27 +2,27 @@
 
 ## Overview
 
-Some Utils use at a certain cat game.
+A set of utilities for use with a certain cat game.
 
 ## Setup
 
 1. Rename `.env.example` to `.env` and fill in the required variables.
-   
-2. Rename `cf_private_key.pem.example` to `cf_private_key.pem` and fill in the private key get from libnative-lib.so.
+
+2. Rename `cf_private_key.pem.example` to `cf_private_key.pem` and paste the private key obtained from `libnative-lib.so`.
 
 ## Features
 
 1. [Decrypt BCU pack files without knowing the password.](src/bcuzip)
 
-2. [Get the game announcement file and pictures.](src/placement)
+2. [Retrieve the game announcement file and images.](src/placement)
 
-3. [Get the game event files.](src/event)
+3. [Fetch the game event files.](src/event)
 
-4. [Dump the assets through xapk file.](src/local)
+4. [Dump assets from an XAPK file.](src/local)
 
-5. [Get the assets from server assets through xapk file.](src/server)
+5. [Fetch assets from the server using an XAPK file.](src/server)
 
-6. [Get your gacha seed through transfer code And confirmation code.](src/seed)
+6. [Obtain your gacha seed using the transfer code and confirmation code.](src/seed)
 
 ## Running the Project
 
@@ -38,6 +38,5 @@ To run the project with automatic updates, use this command:
 cargo run update --release
 ```
 
-## TODOS
-
-- [] EN server assets download
+# TODOS
+- [ ] Download EN server assets
