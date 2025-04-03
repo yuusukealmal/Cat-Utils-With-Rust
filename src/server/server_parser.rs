@@ -55,29 +55,34 @@ pub async fn parse_server(
 
     let versions = get_version::get_version(cc)?;
 
-    let data: Map<String, Value> = serde_json::from_str(&fs::read_to_string("data.json")?)?;
-    let server_versions = data[&cc.to_uppercase()].as_object().unwrap()["server"]
-        .as_object()
-        .unwrap();
-
-    let tsvs = get_tsv_hash::get_tsv_hash(cc)?;
-    let mut data_mut = data.clone();
-
-    for (index, version) in versions.iter().enumerate() {
-        let current_version = server_versions
-            .get(&format!("assets{}", index))
-            .unwrap_or(&serde_json::Value::Null);
-
-        if current_version != &tsvs[index] {
-            zip_download::download_zip(cc, index, version).await?;
-            parse_zip::parse_zip(cc, output_path)?;
-            data_mut[&cc.to_uppercase()]["server"][&format!("assets{}", index)] =
-                serde_json::Value::String(tsvs[index].clone());
-        }
-    }
 
     if let Some(true) = update {
+        let data: Map<String, Value> = serde_json::from_str(&fs::read_to_string("data.json")?)?;
+        let server_versions = data[&cc.to_uppercase()].as_object().unwrap()["server"]
+            .as_object()
+            .unwrap();
+        let mut data_mut = data.clone();
+        let tsvs = get_tsv_hash::get_tsv_hash(cc)?;
+
+        for (index, version) in versions.iter().enumerate() {
+            let current_version = server_versions
+                .get(&format!("assets{}", index))
+                .unwrap_or(&serde_json::Value::Null);
+    
+            if current_version != &tsvs[index] {
+                zip_download::download_zip(cc, index, version).await?;
+                parse_zip::parse_zip(cc, output_path)?;
+                data_mut[&cc.to_uppercase()]["server"][&format!("assets{}", index)] =
+                    serde_json::Value::String(tsvs[index].clone());
+            }
+        }
+        
         fs::write("data.json", indent_json(&data_mut)?)?;
+    }else {
+        for (index, version) in versions.iter().enumerate() {
+            zip_download::download_zip(cc, index, version).await?;
+            parse_zip::parse_zip(cc, output_path)?;
+        }
     }
 
     if Path::new(&temp_path).exists() {
