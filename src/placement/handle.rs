@@ -1,8 +1,12 @@
+use std::fs;
 use std::path::PathBuf;
+
+use serde_json::{Map, Value};
 
 use super::requests;
 use crate::functions::file_selector::file_dialog;
 use crate::functions::git::{commit_or_push, Method};
+use crate::functions::json_prettier::indent_json;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::writer::create_file;
 
@@ -55,15 +59,14 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
             .await
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
-        let json =
-            serde_json::to_string_pretty(&serde_json::from_str::<serde_json::Value>(&result)?)?;
+        let json: Map<String, Value> = serde_json::from_str(&result)?;
 
         let path = PathBuf::from(&output_path)
             .join(&folder_name)
             .join("placement")
             .join("placement.json");
 
-        create_file(json.as_bytes(), &path.to_string_lossy())?;
+        fs::write(path, indent_json(&json)?)?;
 
         let json: serde_json::Value = serde_json::from_str(&result)?;
 
