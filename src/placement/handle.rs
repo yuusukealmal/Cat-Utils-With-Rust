@@ -47,37 +47,21 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
             _ => &format!("/{}", cc),
         };
 
-        let result = requests::get_placement(cc)
-            .await
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
-
-        let json: Map<String, Value> = serde_json::from_str(&result)?;
-
-        let path = PathBuf::from(&output_path)
+        let base_path = PathBuf::from(&output_path)
             .join(get_folder_name(cc))
-            .join("placement")
-            .join("placement.json");
+            .join("placement");
 
+        let placement = requests::get_placement(cc).await?;
+        let json: Map<String, Value> = serde_json::from_str(&placement)?;
+
+        let path = base_path.join("placement.json");
         create_file(indent_json(&json)?.as_bytes(), path.to_str().unwrap())?;
-
-        let json: serde_json::Value = serde_json::from_str(&result)?;
 
         for notice in json["notice"]["data"].as_array().unwrap() {
             let uuid = notice["id"].as_str().unwrap();
+            let data = requests::get_pictures(cc_suffix, uuid).await?;
 
-            let url = String::from(format!(
-                "https://ponosgames.com/information/appli/battlecats/placement{}/notice_{}.png",
-                cc_suffix, uuid
-            ));
-
-            let data = reqwest::get(&url).await.unwrap().bytes().await.unwrap();
-
-            let path = PathBuf::from(&output_path)
-                .join(get_folder_name(cc))
-                .join("placement")
-                .join("picture")
-                .join(format!("{}.png", uuid));
-
+            let path = base_path.join("picture").join(format!("{}.png", uuid));
             create_file(&data, &path.to_string_lossy())?;
         }
 
