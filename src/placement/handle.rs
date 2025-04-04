@@ -7,6 +7,7 @@ use crate::functions::file_selector::file_dialog;
 use crate::functions::git::{commit_or_push, Method};
 use crate::functions::json_prettier::indent_json;
 use crate::functions::logger::logger::{log, LogLevel};
+use crate::functions::utils::get_folder_name;
 use crate::functions::writer::create_file;
 
 pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> {
@@ -46,14 +47,6 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
             _ => &format!("/{}", cc),
         };
 
-        let folder_name = match cc {
-            "jp" => "にゃんこ大戦争",
-            "tw" => "貓咪大戰爭",
-            "en" => "The Battle Cats",
-            "kr" => "냥코대전쟁",
-            _ => "Unknown",
-        };
-
         let result = requests::get_placement(cc)
             .await
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
@@ -61,7 +54,7 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
         let json: Map<String, Value> = serde_json::from_str(&result)?;
 
         let path = PathBuf::from(&output_path)
-            .join(&folder_name)
+            .join(get_folder_name(cc))
             .join("placement")
             .join("placement.json");
 
@@ -80,7 +73,7 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
             let data = reqwest::get(&url).await.unwrap().bytes().await.unwrap();
 
             let path = PathBuf::from(&output_path)
-                .join(&folder_name)
+                .join(get_folder_name(cc))
                 .join("placement")
                 .join("picture")
                 .join(format!("{}.png", uuid));

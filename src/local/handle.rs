@@ -67,8 +67,8 @@ pub fn dump_apk(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> 
         Some("xapk") => {
             if let Ok(Some(package)) = valid_xapk(&apk) {
                 let cc = match package.as_str() {
-                    "jp.co.ponos.battlecats" => "jp",
-                    _ => &package[package.len().saturating_sub(2)..],
+                    "jp.co.ponos.battlecats" => String::from("JP"),
+                    _ => package[package.len().saturating_sub(2)..].to_string(),
                 };
 
                 let file = File::open(&apk)?;
@@ -81,7 +81,7 @@ pub fn dump_apk(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> 
                 let temp_path = std::env::temp_dir().join("InstallPack.apk");
                 std::fs::write(&temp_path, install_pack_data)?;
 
-                apk_parser::parse_apk(cc, &output_path)?;
+                apk_parser::parse_apk(cc, output_path)?;
 
                 std::fs::remove_file(temp_path)?;
             } else {

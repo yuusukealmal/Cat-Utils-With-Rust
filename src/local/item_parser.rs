@@ -8,6 +8,7 @@ use zip::ZipArchive;
 use super::apk_parser::{Item, APK};
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::logger::logger::{log, LogLevel};
+use crate::functions::utils::get_folder_name;
 
 impl APK {
     fn get_list_str(
@@ -91,17 +92,10 @@ impl APK {
 
                 let content = &item_pack_data[item_data.start..item_data.start + item_data.arrange];
 
-                let folder_name = match cc {
-                    "jp" => "にゃんこ大戦争",
-                    "tw" => "貓咪大戰爭",
-                    "en" => "The Battle Cats",
-                    "kr" => "냥코대전쟁",
-                    _ => "Unknown",
-                };
-
                 let parent_folder = item.rsplit('/').next().unwrap_or("default_folder");
                 let output_path = PathBuf::from(output_path)
                     .join(folder_name)
+                    .join(get_folder_name(&self.cc))
                     .join("local")
                     .join(parent_folder)
                     .join(&item_data.name);

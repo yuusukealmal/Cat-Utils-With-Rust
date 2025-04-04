@@ -93,3 +93,15 @@ pub fn get_random_device() -> Value {
     let random_index = rand::rng().random_range(0..devices.len());
     devices[random_index].clone()
 }
+
+pub fn get_folder_name(cc: &str) -> String {
+    let folder = match cc {
+        "jp" => "にゃんこ大戦争",
+        "tw" => "貓咪大戰爭",
+        "en" => "The Battle Cats",
+        "kr" => "냥코대전쟁",
+        _ => "Unknown",
+    };
+
+    folder.to_string()
+}
