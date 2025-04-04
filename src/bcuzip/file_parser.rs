@@ -14,7 +14,7 @@ pub mod length_count {
     use super::super::write::BCUZIP;
     use super::Files;
     use crate::functions::logger::logger::{log, LogLevel};
-    use crate::functions::writer::create_dir;
+    use crate::functions::writer::writer::create_dir;
 
     fn cnt_length(fp: &str) -> Result<BCUZIP, std::io::Error> {
         let mut file = File::open(fp)?;

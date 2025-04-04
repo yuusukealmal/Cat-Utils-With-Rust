@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use serde_json;
 
 use super::file_parser::Files;
-use crate::functions::writer::{create_dir, create_file};
+use crate::functions::writer::writer::{create_dir, create_file};
 
 pub struct BCUZIP {
     pub title: String,

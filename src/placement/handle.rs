@@ -8,7 +8,7 @@ use crate::functions::git::{commit_or_push, Method};
 use crate::functions::json_prettier::indent_json;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::get_folder_name;
-use crate::functions::writer::create_file;
+use crate::functions::writer::writer::create_file;
 
 pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> {
     let output_path = match update {

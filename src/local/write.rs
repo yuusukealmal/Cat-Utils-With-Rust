@@ -3,7 +3,7 @@ use std::io;
 
 use super::apk_parser::Item;
 use crate::functions::aes_decrypt::aes_decrypt;
-use crate::functions::writer::{create_dir, create_file};
+use crate::functions::writer::writer::{create_dir, create_file};
 
 impl Item {
     pub fn write_file(&self, cc: &str, item: &str, content: &[u8]) -> Result<(), std::io::Error> {

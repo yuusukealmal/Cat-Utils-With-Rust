@@ -1,5 +1,5 @@
 use super::get_token::EventData;
-use crate::functions::writer::create_file;
+use crate::functions::writer::writer::create_file;
 
 impl EventData {
     pub async fn to_file(&mut self, cc: &str, file: &str) -> Result<(), std::io::Error> {

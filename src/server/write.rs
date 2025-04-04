@@ -3,7 +3,7 @@ use std::io;
 use std::path::PathBuf;
 
 use crate::functions::aes_decrypt::aes_decrypt;
-use crate::functions::writer::{create_dir, create_file};
+use crate::functions::writer::writer::{create_dir, create_file};
 
 use super::parse_zip::Item;
 
