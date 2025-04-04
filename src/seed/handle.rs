@@ -3,9 +3,15 @@ use std::io;
 use colored::Colorize;
 use regex::Regex;
 
-use super::requests;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::zfill;
+
+pub struct Account {
+    pub account: String,
+    pub password: String,
+    pub cc: String,
+    pub version: u32,
+}
 
 pub struct SaveParser {
     pub address: usize,
@@ -61,9 +67,19 @@ pub async fn get_seed() -> Result<u32, std::io::Error> {
     let version = zfill(input.trim());
     log(LogLevel::Info, format!("Version: {}", version));
 
-    let data = requests::get_save(&account, &password, version, cc).await;
+    let acc = Account {
+        account,
+        password,
+        cc: cc.to_string(),
+        version,
+    };
 
-    let seed = SaveParser::new(data.unwrap()).parse_save(None);
+    let data = acc
+        .get_save()
+        .await
+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+
+    let seed = SaveParser::new(data).parse_save(None);
 
     Ok(seed)
 }

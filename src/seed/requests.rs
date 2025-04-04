@@ -2,53 +2,54 @@ use reqwest::header::HeaderMap;
 use reqwest::Error as ReqwestError;
 use serde_json::json;
 
+use super::handle::Account;
 use crate::functions::utils;
 
-pub async fn get_save(
-    account: &str,
-    password: &str,
-    version: u32,
-    cc: &str,
-) -> Result<Vec<u8>, ReqwestError> {
-    let client = reqwest::Client::new();
-    let mut header = HeaderMap::new();
+impl Account {
+    pub async fn get_save(&self) -> Result<Vec<u8>, ReqwestError> {
+        let client = reqwest::Client::new();
+        let mut header = HeaderMap::new();
 
-    let random_hex = utils::generate_random_hash(32);
-    let random_device = utils::get_random_device();
+        let random_hex = utils::generate_random_hash(32);
+        let random_device = utils::get_random_device();
 
-    let country_code = match cc {
-        "jp" => "ja",
-        other => other,
-    };
+        let country_code = match self.cc.as_str() {
+            "jp" => "ja",
+            other => other,
+        };
 
-    let data = json!({
-        "clientInfo": {
-            "client": { "countryCode": country_code, "version": version },
-            "device": { "model": random_device["model"] },
-            "os": { "type": "android", "version": random_device["version"] }
-        },
-        "nonce": random_hex,
-        "pin": password
-    });
+        let data = json!({
+            "clientInfo": {
+                "client": { "countryCode": country_code, "version": self.version },
+                "device": { "model": random_device["model"] },
+                "os": { "type": "android", "version": random_device["version"] }
+            },
+            "nonce": random_hex,
+            "pin": self.password
+        });
 
-    header.insert("Content-Type", "application/json".parse().unwrap());
-    header.insert("Accept-Encoding", "gzip".parse().unwrap());
-    header.insert("Connection", "keep-alive".parse().unwrap());
-    header.insert(
-        "User-Agent",
-        random_device["User-Agent"].to_string().parse().unwrap(),
-    );
+        header.insert("Content-Type", "application/json".parse().unwrap());
+        header.insert("Accept-Encoding", "gzip".parse().unwrap());
+        header.insert("Connection", "keep-alive".parse().unwrap());
+        header.insert(
+            "User-Agent",
+            random_device["User-Agent"].to_string().parse().unwrap(),
+        );
 
-    let url = format!("https://nyanko-save.ponosgames.com/v2/transfers/{account}/reception");
+        let url = format!(
+            "https://nyanko-save.ponosgames.com/v2/transfers/{0}/reception",
+            self.account
+        );
 
-    let response = client
-        .post(url)
-        .headers(header)
-        .body(data.to_string())
-        .send()
-        .await?
-        .bytes()
-        .await?;
+        let response = client
+            .post(url)
+            .headers(header)
+            .body(data.to_string())
+            .send()
+            .await?
+            .bytes()
+            .await?;
 
-    Ok(response.to_vec())
+        Ok(response.to_vec())
+    }
 }
