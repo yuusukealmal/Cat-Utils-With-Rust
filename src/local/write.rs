@@ -1,27 +1,21 @@
 use std::ffi::OsStr;
 use std::io;
-use std::path::PathBuf;
 
 use super::apk_parser::Item;
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::writer::{create_dir, create_file};
 
 impl Item {
-    pub fn write_file(
-        &self,
-        cc: &str,
-        item: &str,
-        content: &[u8],
-        fp: PathBuf,
-    ) -> Result<(), std::io::Error> {
-        let parent_dir = fp
+    pub fn write_file(&self, cc: &str, item: &str, content: &[u8]) -> Result<(), std::io::Error> {
+        let parent_dir = self
+            .output_path
             .parent()
             .and_then(|p| p.to_str())
             .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidInput, "Invalid path"))?;
 
         create_dir(parent_dir)?;
 
-        let fp_str = fp.to_str().ok_or_else(|| {
+        let fp_str = self.output_path.to_str().ok_or_else(|| {
             std::io::Error::new(std::io::ErrorKind::InvalidInput, "Invalid file path")
         })?;
 
@@ -37,7 +31,9 @@ impl Item {
                     )
                 })?;
 
-                if fp.extension().and_then(OsStr::to_str) == Some("json") && data.len() > 0 {
+                if self.output_path.extension().and_then(OsStr::to_str) == Some("json")
+                    && data.len() > 0
+                {
                     let json_str = String::from_utf8(data).map_err(|e| {
                         io::Error::new(
                             io::ErrorKind::InvalidData,

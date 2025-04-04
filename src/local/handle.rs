@@ -67,7 +67,7 @@ pub fn dump_apk(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> 
         Some("xapk") => {
             if let Ok(Some(package)) = valid_xapk(&apk) {
                 let cc = match package.as_str() {
-                    "jp.co.ponos.battlecats" => String::from("JP"),
+                    "jp.co.ponos.battlecats" => String::from("jp"),
                     _ => package[package.len().saturating_sub(2)..].to_string(),
                 };
 

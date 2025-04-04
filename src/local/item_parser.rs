@@ -1,9 +1,6 @@
 use std::error::Error;
-use std::fs::File;
 use std::io::{self, Read};
 use std::path::PathBuf;
-
-use zip::ZipArchive;
 
 use super::apk_parser::{Item, APK};
 use crate::functions::aes_decrypt::aes_decrypt;
@@ -11,12 +8,8 @@ use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::get_folder_name;
 
 impl APK {
-    fn get_list_str(
-        &mut self,
-        zip: &mut ZipArchive<File>,
-        item: &str,
-    ) -> Result<String, std::io::Error> {
-        let mut item_list = zip.by_name(&format!("{}.list", item))?;
+    fn get_list_str(&mut self, item: &str) -> Result<String, std::io::Error> {
+        let mut item_list = self.zip.by_name(&format!("{}.list", item))?;
         let mut item_list_data = Vec::new();
         item_list.read_to_end(&mut item_list_data)?;
 
@@ -36,38 +29,31 @@ impl APK {
         Ok(list_str)
     }
 
-    pub fn parse_item(
-        &mut self,
-        cc: &str,
-        output_path: &str,
-        item: &str,
-    ) -> Result<(), std::io::Error> {
+    pub fn parse_item(&mut self, item: &str) -> Result<(), Box<dyn std::error::Error>> {
         log(LogLevel::Info, format!("Start to Parse: {}", item));
 
-        let file = File::open(std::env::temp_dir().join("InstallPack.apk"))?;
-        let mut zip = ZipArchive::new(file)?;
-
-        let list_str = match self.get_list_str(&mut zip, item) {
+        let list_str = match self.get_list_str(item) {
             Ok(s) => s,
             Err(e) => {
                 log(LogLevel::Error, format!("Error parsing item list: {}", e));
-                return Err(e);
+                return Err(e.into());
             }
         };
 
-        let mut item_pack = zip.by_name(&format!("{}.pack", item))?;
+        let mut item_pack = self.zip.by_name(&format!("{}.pack", item))?;
         let mut item_pack_data = Vec::new();
         item_pack.read_to_end(&mut item_pack_data)?;
 
-        for (i, line) in list_str.lines().enumerate().skip(1) {
+        for (index, line) in list_str.lines().enumerate().skip(1) {
             let parts: Vec<&str> = line.split(',').collect();
             if parts.len() == 3 {
+                let name = parts[0].to_string();
                 let start = match parts[1].parse::<usize>() {
                     Ok(v) => v,
                     Err(e) => {
                         log(
                             LogLevel::Error,
-                            format!("Invalid start index at line {}: {}", i + 1, e),
+                            format!("Invalid start index at line {}: {}", index + 1, e),
                         );
                         continue;
                     }
@@ -78,33 +64,32 @@ impl APK {
                     Err(e) => {
                         log(
                             LogLevel::Error,
-                            format!("Invalid arrange size at line {}: {}", i + 1, e),
+                            format!("Invalid arrange size at line {}: {}", index + 1, e),
                         );
                         continue;
                     }
                 };
 
-                let item_data = Item {
-                    name: parts[0].to_string(),
-                    start,
-                    arrange,
-                };
-
-                let content = &item_pack_data[item_data.start..item_data.start + item_data.arrange];
-
-                let parent_folder = item.rsplit('/').next().unwrap_or("default_folder");
-                let output_path = PathBuf::from(output_path)
-                    .join(folder_name)
+                let output_path = PathBuf::from(&self.output_path)
                     .join(get_folder_name(&self.cc))
                     .join("local")
-                    .join(parent_folder)
-                    .join(&item_data.name);
+                    .join(item.rsplit("/").next().unwrap())
+                    .join(&name);
 
-                item_data.write_file(cc, item, content, output_path)?;
+                let content = Item {
+                    name,
+                    start,
+                    arrange,
+                    output_path,
+                };
+
+                let data = &item_pack_data[content.start..content.start + content.arrange];
+
+                content.write_file(&self.cc, item, data)?;
             } else {
                 log(
                     LogLevel::Error,
-                    format!("Invalid line format at line {}: {}", i + 1, line),
+                    format!("Invalid line format at line {}: {}", index + 1, line),
                 );
             }
         }
