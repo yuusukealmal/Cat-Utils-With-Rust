@@ -4,12 +4,11 @@ use std::path::PathBuf;
 
 use zip::ZipArchive;
 
+use crate::config::structs::ServerItem;
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::get_folder_name;
 use crate::functions::writer::writer::{create_dir, create_file};
-use crate::config::structs::ServerItem;
-
 
 impl ServerItem {
     fn from_line(line: &str) -> Result<Self, io::Error> {

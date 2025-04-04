@@ -5,7 +5,7 @@ pub mod length_count {
 
     use md5;
 
-    use crate::config::structs::{BCUZIP, BCUFiles};
+    use crate::config::structs::{BCUFiles, BCUZIP};
     use crate::functions::logger::logger::{log, LogLevel};
     use crate::functions::writer::writer::create_dir;
 

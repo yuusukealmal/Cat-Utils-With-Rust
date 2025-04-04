@@ -3,9 +3,9 @@ use std::io;
 use colored::Colorize;
 use regex::Regex;
 
+use crate::config::structs::{Account, SaveParser};
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::zfill;
-use crate::config::structs::{Account, SaveParser};
 
 pub async fn get_seed() -> Result<u32, std::io::Error> {
     let account_reg = Regex::new(r"^[A-Za-z0-9]{9}$").expect("Regex 建立失敗");

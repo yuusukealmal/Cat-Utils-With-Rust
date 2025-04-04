@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 use serde_json;
 
-use crate::config::structs::{BCUZIP, BCUFiles};
+use crate::config::structs::{BCUFiles, BCUZIP};
 use crate::functions::writer::writer::{create_dir, create_file};
 
 impl BCUZIP {

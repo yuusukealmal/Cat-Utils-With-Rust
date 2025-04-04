@@ -1,3 +1,4 @@
+use crate::config::routes::EVENT_FILE;
 use crate::config::structs::Event;
 use crate::functions::writer::writer::create_file;
 
@@ -5,10 +6,7 @@ impl Event {
     pub async fn to_file(&mut self, cc: &str, file: &str) -> Result<(), std::io::Error> {
         let cc_suffix = if cc == "jp" { "" } else { cc };
 
-        let url = format!(
-            "https://nyanko-events.ponosgames.com/battlecats{cc_suffix}_production/{file}.tsv?jwt={}",
-            self.jwt_token.as_deref().unwrap_or("")
-        );
+        let url = EVENT_FILE(cc_suffix, file, self.jwt_token.as_deref().unwrap());
 
         let data = reqwest::get(&url).await.unwrap().text().await.unwrap();
 

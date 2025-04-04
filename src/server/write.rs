@@ -2,9 +2,9 @@ use std::ffi::OsStr;
 use std::io;
 use std::path::PathBuf;
 
+use crate::config::structs::ServerItem;
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::writer::writer::{create_dir, create_file};
-use crate::config::structs::ServerItem;
 
 impl ServerItem {
     pub fn write_file(

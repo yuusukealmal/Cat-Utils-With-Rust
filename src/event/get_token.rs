@@ -4,8 +4,9 @@ use reqwest::{header::HeaderMap, Response};
 use serde_json::json;
 use sha2::Sha256;
 
-use crate::functions::utils::{generate_random_hash, get_timestamp};
+use crate::config::routes::{EVENT_CREATE_ACCOUNT, EVENT_USER_AUTH, EVENT_USER_TOKEN};
 use crate::config::structs::Event;
+use crate::functions::utils::{generate_random_hash, get_timestamp};
 
 impl Event {
     pub fn new() -> Event {
@@ -64,12 +65,8 @@ impl Event {
     }
 
     pub async fn generate_account(&mut self) -> reqwest::Result<()> {
-        let account_json: serde_json::Value = reqwest::get(
-            "https://nyanko-backups.ponosgames.com/?action=createAccount&referenceId=",
-        )
-        .await?
-        .json()
-        .await?;
+        let account_json: serde_json::Value =
+            reqwest::get(EVENT_CREATE_ACCOUNT).await?.json().await?;
 
         if account_json["success"].as_bool().unwrap_or(false) {
             self.account_code = account_json["accountId"].as_str().map(String::from);
@@ -86,7 +83,7 @@ impl Event {
             let json_text = password_headers_data.to_string();
 
             let password_result = self
-                .get_post_response("https://nyanko-auth.ponosgames.com/v1/users", json_text)
+                .get_post_response(EVENT_USER_AUTH, json_text)
                 .await?
                 .text()
                 .await?;
@@ -131,10 +128,7 @@ impl Event {
         });
 
         let jwt_result = self
-            .get_post_response(
-                "https://nyanko-auth.ponosgames.com/v1/tokens",
-                json_text.to_string(),
-            )
+            .get_post_response(EVENT_USER_TOKEN, json_text.to_string())
             .await?
             .text()
             .await?;

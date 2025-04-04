@@ -6,6 +6,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::header::HeaderMap;
 use reqwest::Client;
 
+use crate::config::routes::{CLOUDFRONT_SIGN_URL, SERVER_ASSETS_ZIP};
 use crate::config::structs::CloudFrontSign;
 use crate::functions::logger::logger::{log, LogLevel};
 
@@ -35,7 +36,7 @@ pub async fn download_zip(
     let cloudfront = CloudFrontSign::new();
 
     let sign = cloudfront
-        .generate_signed_cookie("https://nyanko-assets.ponosgames.com/*")
+        .generate_signed_cookie(CLOUDFRONT_SIGN_URL)
         .map_err(|e| {
             log(
                 LogLevel::Error,
@@ -54,10 +55,7 @@ pub async fn download_zip(
         "Dalvik/2.1.0 (Linux; U; Android 13; XQ-BC52 Build/61.2.A.0.447)".parse()?,
     );
 
-    let url = format!(
-        "https://nyanko-assets.ponosgames.com/iphone/{}/download/{}.zip",
-        cc, version_fmt
-    );
+    let url = SERVER_ASSETS_ZIP(cc, &version_fmt);
 
     log(LogLevel::Info, format!("Downloading zip: {}", version_fmt));
 

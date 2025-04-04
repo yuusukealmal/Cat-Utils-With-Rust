@@ -2,7 +2,7 @@ use std::error::Error;
 use std::io::{self, Read};
 use std::path::PathBuf;
 
-use crate::config::structs::{APK, LocalItem};
+use crate::config::structs::{LocalItem, APK};
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::get_folder_name;
