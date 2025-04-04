@@ -5,17 +5,8 @@ use std::path::PathBuf;
 
 use serde_json;
 
-use super::file_parser::Files;
+use crate::config::structs::{BCUZIP, BCUFiles};
 use crate::functions::writer::writer::{create_dir, create_file};
-
-pub struct BCUZIP {
-    pub title: String,
-    pub length: u32,
-    pub pad: u32,
-    pub data: Vec<u8>,
-    pub key: [u8; 16],
-    pub iv: [u8; 16],
-}
 
 impl BCUZIP {
     pub fn write_info(&self, file: &mut File, dest: &str) -> Result<String> {
@@ -39,7 +30,7 @@ impl BCUZIP {
         Ok(info)
     }
 
-    pub fn write_file(&self, file: &Files, dest: &str) -> Result<()> {
+    pub fn write_file(&self, file: &BCUFiles, dest: &str) -> Result<()> {
         let file_name = file.path.split("/").last().unwrap();
 
         let fp = PathBuf::from(dest).join(&self.title).join(&file.path);

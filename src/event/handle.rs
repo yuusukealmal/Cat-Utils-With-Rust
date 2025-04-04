@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use super::get_token::EventData;
+use crate::config::structs::Event;
 use crate::functions::file_selector::file_dialog;
 use crate::functions::git::{commit_or_push, Method};
 use crate::functions::logger::logger::{log, LogLevel};
@@ -37,7 +37,7 @@ pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::err
 
     log(LogLevel::Info, "Start to get event data".to_string());
 
-    let mut event = EventData::new();
+    let mut event = Event::new();
 
     event.generate_account().await?;
     event.generate_jwtoken().await?;

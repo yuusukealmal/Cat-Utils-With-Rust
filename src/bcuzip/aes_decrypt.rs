@@ -1,7 +1,7 @@
 use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
 use crypto::{aes, blockmodes, buffer, symmetriccipher};
 
-use super::write::BCUZIP;
+use crate::config::structs::BCUZIP;
 
 impl BCUZIP {
     pub fn aes_pack(

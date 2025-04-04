@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use hex;
 use hmac::{Hmac, Mac};
 use reqwest::{header::HeaderMap, Response};
@@ -7,18 +5,11 @@ use serde_json::json;
 use sha2::Sha256;
 
 use crate::functions::utils::{generate_random_hash, get_timestamp};
+use crate::config::structs::Event;
 
-pub struct EventData {
-    pub account_code: Option<String>,
-    pub password: Option<String>,
-    pub password_refresh_token: Option<String>,
-    pub jwt_token: Option<String>,
-    pub output_path: Option<PathBuf>,
-}
-
-impl EventData {
-    pub fn new() -> EventData {
-        EventData {
+impl Event {
+    pub fn new() -> Event {
+        Event {
             account_code: None,
             password: None,
             password_refresh_token: None,

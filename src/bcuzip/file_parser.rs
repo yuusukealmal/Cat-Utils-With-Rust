@@ -1,9 +1,3 @@
-pub struct Files {
-    pub offset: u32,
-    pub path: String,
-    pub size: u32,
-}
-
 pub mod length_count {
     use std::fs::File;
     use std::io::{Read, Seek, SeekFrom};
@@ -11,8 +5,7 @@ pub mod length_count {
 
     use md5;
 
-    use super::super::write::BCUZIP;
-    use super::Files;
+    use crate::config::structs::{BCUZIP, BCUFiles};
     use crate::functions::logger::logger::{log, LogLevel};
     use crate::functions::writer::writer::create_dir;
 
@@ -68,7 +61,7 @@ pub mod length_count {
 
         for item in info["files"].as_array().unwrap_or(&vec![]).iter() {
             if let Some(obj) = item.as_object() {
-                let f = Files {
+                let f = BCUFiles {
                     offset: obj.get("offset").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                     path: obj
                         .get("path")

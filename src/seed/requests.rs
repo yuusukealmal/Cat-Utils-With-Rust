@@ -2,7 +2,7 @@ use reqwest::header::HeaderMap;
 use reqwest::Error as ReqwestError;
 use serde_json::json;
 
-use super::handle::Account;
+use crate::config::structs::Account;
 use crate::functions::utils;
 
 impl Account {
@@ -37,7 +37,7 @@ impl Account {
         );
 
         let url = format!(
-            "https://nyanko-save.ponosgames.com/v2/transfers/{0}/reception",
+            "https://nyanko-save.ponosgames.com/v2/transfers/{}/reception",
             self.account
         );
 

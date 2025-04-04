@@ -4,10 +4,9 @@ use std::path::PathBuf;
 
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::writer::writer::{create_dir, create_file};
+use crate::config::structs::ServerItem;
 
-use super::parse_zip::Item;
-
-impl Item {
+impl ServerItem {
     pub fn write_file(
         &self,
         item: &str,

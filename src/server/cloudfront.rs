@@ -8,10 +8,7 @@ use pkcs8::DecodePrivateKey;
 use rsa::{pkcs1v15::Pkcs1v15Sign, RsaPrivateKey}; // 直接使用 pkcs1v15 模組
 use sha1::{Digest, Sha1};
 
-pub struct CloudFrontSign {
-    cf_private_key: String,
-    cf_key_pair_id: String,
-}
+use crate::config::structs::CloudFrontSign;
 
 impl CloudFrontSign {
     pub fn new() -> Self {

@@ -1,20 +1,8 @@
-use std::{fs::File, path::PathBuf};
+use std::fs::File;
 
 use zip::ZipArchive;
 
-pub struct APK {
-    pub cc: String,
-    pub output_path: String,
-    pub zip: ZipArchive<File>,
-}
-
-#[allow(dead_code)]
-pub struct Item {
-    pub name: String,
-    pub start: usize,
-    pub arrange: usize,
-    pub output_path: PathBuf,
-}
+use crate::config::structs::APK;
 
 impl APK {
     fn read_items(&self) -> Result<Vec<String>, std::io::Error> {

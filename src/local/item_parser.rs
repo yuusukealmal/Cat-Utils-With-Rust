@@ -2,7 +2,7 @@ use std::error::Error;
 use std::io::{self, Read};
 use std::path::PathBuf;
 
-use super::apk_parser::{Item, APK};
+use crate::config::structs::{APK, LocalItem};
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::get_folder_name;
@@ -76,7 +76,7 @@ impl APK {
                     .join(item.rsplit("/").next().unwrap())
                     .join(&name);
 
-                let content = Item {
+                let content = LocalItem {
                     name,
                     start,
                     arrange,

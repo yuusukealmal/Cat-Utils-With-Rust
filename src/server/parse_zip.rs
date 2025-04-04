@@ -8,14 +8,10 @@ use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::get_folder_name;
 use crate::functions::writer::writer::{create_dir, create_file};
+use crate::config::structs::ServerItem;
 
-pub struct Item {
-    pub name: String,
-    pub start: usize,
-    pub arrange: usize,
-}
 
-impl Item {
+impl ServerItem {
     fn from_line(line: &str) -> Result<Self, io::Error> {
         let parts: Vec<&str> = line.split(',').collect();
         if parts.len() == 3 {
@@ -32,7 +28,7 @@ impl Item {
                 )
             })?;
 
-            Ok(Item {
+            Ok(ServerItem {
                 name: parts[0].to_string(),
                 start,
                 arrange,
@@ -97,7 +93,7 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
             })?;
 
             for (i, line) in list_str.lines().enumerate().skip(1) {
-                match Item::from_line(line) {
+                match ServerItem::from_line(line) {
                     Ok(item) => {
                         let content = &item_pack_data[item.start..item.start + item.arrange];
 

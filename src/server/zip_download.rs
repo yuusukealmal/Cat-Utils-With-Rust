@@ -6,7 +6,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::header::HeaderMap;
 use reqwest::Client;
 
-use super::cloudfront;
+use crate::config::structs::CloudFrontSign;
 use crate::functions::logger::logger::{log, LogLevel};
 
 pub async fn download_zip(
@@ -32,7 +32,7 @@ pub async fn download_zip(
         )
     };
 
-    let cloudfront = cloudfront::CloudFrontSign::new();
+    let cloudfront = CloudFrontSign::new();
 
     let sign = cloudfront
         .generate_signed_cookie("https://nyanko-assets.ponosgames.com/*")

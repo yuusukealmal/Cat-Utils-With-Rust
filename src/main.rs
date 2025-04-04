@@ -5,6 +5,7 @@ use colored::Colorize;
 use functions::duration::count_duration;
 
 mod bcuzip;
+mod config;
 mod event;
 mod functions;
 mod local;

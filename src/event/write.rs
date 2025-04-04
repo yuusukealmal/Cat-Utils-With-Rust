@@ -1,7 +1,7 @@
-use super::get_token::EventData;
+use crate::config::structs::Event;
 use crate::functions::writer::writer::create_file;
 
-impl EventData {
+impl Event {
     pub async fn to_file(&mut self, cc: &str, file: &str) -> Result<(), std::io::Error> {
         let cc_suffix = if cc == "jp" { "" } else { cc };
 

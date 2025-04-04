@@ -1,4 +1,4 @@
-use super::handle::SaveParser;
+use crate::config::structs::SaveParser;
 use crate::functions::logger::logger::{log, LogLevel};
 
 impl SaveParser {

@@ -1,11 +1,11 @@
 use std::ffi::OsStr;
 use std::io;
 
-use super::apk_parser::Item;
+use crate::config::structs::LocalItem;
 use crate::functions::aes_decrypt::aes_decrypt;
 use crate::functions::writer::writer::{create_dir, create_file};
 
-impl Item {
+impl LocalItem {
     pub fn write_file(&self, cc: &str, item: &str, content: &[u8]) -> Result<(), std::io::Error> {
         let parent_dir = self
             .output_path
