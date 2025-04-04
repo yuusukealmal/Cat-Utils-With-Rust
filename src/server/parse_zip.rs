@@ -111,7 +111,7 @@ pub fn parse_zip(cc: &str, output_path: &str) -> Result<(), Box<dyn std::error::
                     }
                     Err(e) => {
                         log(
-                            LogLevel::Warning,
+                            LogLevel::Error,
                             format!("Invalid line format at line {}: {}", i + 1, e),
                         );
                     }

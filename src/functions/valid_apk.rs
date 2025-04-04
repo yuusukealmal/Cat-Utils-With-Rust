@@ -6,7 +6,7 @@ pub mod valid_pack {
     use crate::functions::logger::logger::{log, LogLevel};
 
     pub fn valid_apk() -> Result<Option<String>, Box<dyn std::error::Error>> {
-        log(LogLevel::Warning, "Not implemented Yet".to_string());
+        log(LogLevel::Error, "Not implemented Yet".to_string());
         Ok(None)
     }
 

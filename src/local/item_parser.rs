@@ -66,7 +66,7 @@ impl APK {
                     Ok(v) => v,
                     Err(e) => {
                         log(
-                            LogLevel::Warning,
+                            LogLevel::Error,
                             format!("Invalid start index at line {}: {}", i + 1, e),
                         );
                         continue;
@@ -77,7 +77,7 @@ impl APK {
                     Ok(v) => v,
                     Err(e) => {
                         log(
-                            LogLevel::Warning,
+                            LogLevel::Error,
                             format!("Invalid arrange size at line {}: {}", i + 1, e),
                         );
                         continue;
@@ -103,7 +103,7 @@ impl APK {
                 item_data.write_file(cc, item, content, output_path)?;
             } else {
                 log(
-                    LogLevel::Warning,
+                    LogLevel::Error,
                     format!("Invalid line format at line {}: {}", i + 1, line),
                 );
             }
