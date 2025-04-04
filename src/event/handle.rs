@@ -1,7 +1,10 @@
+use std::path::PathBuf;
+
 use super::get_token::EventData;
 use crate::functions::file_selector::file_dialog;
 use crate::functions::git::{commit_or_push, Method};
 use crate::functions::logger::logger::{log, LogLevel};
+use crate::functions::utils::get_folder_name;
 
 pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> {
     let output_path = match update {
@@ -34,19 +37,20 @@ pub async fn get_event_data(update: Option<bool>) -> Result<(), Box<dyn std::err
 
     log(LogLevel::Info, "Start to get event data".to_string());
 
-    let mut event = EventData {
-        account_code: None,
-        password: None,
-        password_refresh_token: None,
-        jwt_token: None,
-    };
+    let mut event = EventData::new();
 
-    event.generate_account().await.ok();
-    event.generate_jwtoken().await.ok();
+    event.generate_account().await?;
+    event.generate_jwtoken().await?;
 
     for cc in ["jp", "tw", "en", "kr"] {
+        let path = PathBuf::from(&output_path)
+            .join(get_folder_name(cc))
+            .join("event");
+
+        event.output_path = Some(path);
+
         for file in ["sale", "gatya", "item"] {
-            event.to_file(output_path.clone(), cc, file).await?;
+            event.to_file(cc, file).await?;
         }
         if update.unwrap_or(false) {
             commit_or_push(

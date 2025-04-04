@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use hex;
 use hmac::{Hmac, Mac};
 use reqwest::{header::HeaderMap, Response};
@@ -11,9 +13,20 @@ pub struct EventData {
     pub password: Option<String>,
     pub password_refresh_token: Option<String>,
     pub jwt_token: Option<String>,
+    pub output_path: Option<PathBuf>,
 }
 
 impl EventData {
+    pub fn new() -> EventData {
+        EventData {
+            account_code: None,
+            password: None,
+            password_refresh_token: None,
+            jwt_token: None,
+            output_path: None,
+        }
+    }
+
     fn hmac_sha256(&self, key: &str, message: &str) -> String {
         let mut mac = Hmac::<Sha256>::new_from_slice(key.as_bytes()).expect("Invalid key length");
         mac.update(message.as_bytes());
