@@ -25,18 +25,17 @@ pub fn get_tsv_hash(cc: &str) -> Result<Vec<String>, Box<dyn std::error::Error>>
 
     if cc == "en" {
         let region_order = vec!["", "fr", "it", "de", "es", "th"];
-        tsv_files.sort_by(|a, b| {
-            let a_region = a.split('_').nth(0).unwrap().replace("assets/download", "");
-            let b_region = b.split('_').nth(0).unwrap().replace("assets/download", "");
-            let a_index = region_order
+        tsv_files.sort_by_key(|name| {
+            let region = name
+                .split('_')
+                .nth(0)
+                .unwrap()
+                .replace("assets/download", "");
+            let index = region_order
                 .iter()
-                .position(|&r| r == a_region)
+                .position(|&r| r == region)
                 .unwrap_or(region_order.len());
-            let b_index = region_order
-                .iter()
-                .position(|&r| r == b_region)
-                .unwrap_or(region_order.len());
-            let a_num: i32 = a
+            let num: i32 = name
                 .split('_')
                 .last()
                 .unwrap()
@@ -45,16 +44,7 @@ pub fn get_tsv_hash(cc: &str) -> Result<Vec<String>, Box<dyn std::error::Error>>
                 .unwrap()
                 .parse()
                 .unwrap();
-            let b_num: i32 = b
-                .split('_')
-                .last()
-                .unwrap()
-                .split('.')
-                .next()
-                .unwrap()
-                .parse()
-                .unwrap();
-            (a_index, a_num).cmp(&(b_index, b_num))
+            (index, num)
         });
     } else {
         tsv_files.sort_by_key(|name| {
