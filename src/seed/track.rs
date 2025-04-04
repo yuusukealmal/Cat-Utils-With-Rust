@@ -44,7 +44,7 @@ impl SaveParser {
         panic!("Could not find date");
     }
 
-    fn get_dst(&mut self, offset: usize) -> bool {
+    fn get_dst(&self, offset: usize) -> bool {
         let mut dst = false;
         if self.save_data[offset] >= 15 && self.save_data[offset] <= 20 {
             dst = true;

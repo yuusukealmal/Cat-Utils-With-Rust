@@ -3,7 +3,7 @@ use crate::config::structs::Event;
 use crate::functions::writer::writer::create_file;
 
 impl Event {
-    pub async fn to_file(&mut self, cc: &str, file: &str) -> Result<(), std::io::Error> {
+    pub async fn to_file(&self, cc: &str, file: &str) -> Result<(), std::io::Error> {
         let cc_suffix = if cc == "jp" { "" } else { cc };
 
         let url = EVENT_FILE(cc_suffix, file, self.jwt_token.as_deref().unwrap());
