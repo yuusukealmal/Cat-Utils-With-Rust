@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::PathBuf;
 
 use serde_json::{Map, Value};
@@ -66,7 +65,7 @@ pub async fn get_announcement(update: Option<bool>) -> Result<(), Box<dyn std::e
             .join("placement")
             .join("placement.json");
 
-        fs::write(path, indent_json(&json)?)?;
+        create_file(indent_json(&json)?.as_bytes(), path.to_str().unwrap())?;
 
         let json: serde_json::Value = serde_json::from_str(&result)?;
 
