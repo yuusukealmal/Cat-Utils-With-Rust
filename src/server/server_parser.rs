@@ -74,9 +74,9 @@ pub async fn parse_server(
                 data_mut[&cc.to_uppercase()]["server"][&format!("assets{}", index)] =
                     serde_json::Value::String(tsvs[index].clone());
             }
-        }
 
-        fs::write("data.json", indent_json(&data_mut)?)?;
+            fs::write("data.json", indent_json(&data_mut)?)?;
+        }
     } else {
         for (index, version) in versions.iter().enumerate() {
             zip_download::download_zip(cc, index, version).await?;
