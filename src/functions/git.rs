@@ -2,6 +2,8 @@ use chrono::{Duration, Utc};
 use git2::{Error, Repository};
 use std::{env, process::Command};
 
+use super::logger::logger::{log, LogLevel};
+
 #[derive(PartialEq)]
 pub enum Method {
     COMMIT,
@@ -13,7 +15,13 @@ pub fn commit_or_push(method: Method, msg: Option<&str>) -> Result<(), Error> {
     let t_str = t.format("%Y-%m-%d %H:%M:%S").to_string();
 
     let repo_path = env::current_dir().unwrap();
-    let repo = Repository::open(repo_path)?;
+    let repo = match Repository::open(repo_path) {
+        Ok(r) => r,
+        Err(_) => {
+            log(LogLevel::Info, "Git repo not found".to_string());
+            return Ok(());
+        }
+    };
     let head = repo.head()?.peel_to_commit()?;
     let binding = repo.head()?;
     let branch = binding.shorthand().unwrap_or("unknown");
@@ -43,7 +51,7 @@ pub fn commit_or_push(method: Method, msg: Option<&str>) -> Result<(), Error> {
         }
     }
 
-    if method == Method::PUSH {
+    if method == Method::PUSH && !is_dirty {
         Command::new("git")
             .args(["push", "origin", "main"])
             .output()
