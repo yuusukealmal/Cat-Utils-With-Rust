@@ -40,4 +40,4 @@ cargo run update --release
 
 # TODOS
 - [x] Download EN server assets
-- [ ] Remove File not in Local
+- [x] Remove File not in Local
