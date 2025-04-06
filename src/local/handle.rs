@@ -2,7 +2,7 @@ use std::{ffi::OsStr, fs::File, io::Read};
 
 use zip::ZipArchive;
 
-use super::apk_parser::{self};
+use crate::config::structs::APK;
 use crate::functions::file_selector::{self, file_dialog};
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::valid_apk::valid_pack::{valid_apk, valid_xapk};
@@ -81,7 +81,16 @@ pub fn dump_apk(update: Option<bool>) -> Result<(), Box<dyn std::error::Error>> 
                 let temp_path = std::env::temp_dir().join("InstallPack.apk");
                 std::fs::write(&temp_path, install_pack_data)?;
 
-                apk_parser::parse_apk(cc, output_path)?;
+                let file = File::open(std::env::temp_dir().join("InstallPack.apk"))?;
+                let zip = ZipArchive::new(file)?;
+
+                let mut apk = APK {
+                    cc: cc.to_string(),
+                    output_path: output_path.to_string(),
+                    zip,
+                };
+
+                apk.parse_apk()?;
 
                 std::fs::remove_file(temp_path)?;
             } else {

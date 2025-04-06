@@ -17,22 +17,13 @@ impl APK {
 
         Ok(items)
     }
-}
 
-pub fn parse_apk(cc: String, output_path: String) -> Result<(), Box<dyn std::error::Error>> {
-    let file = File::open(std::env::temp_dir().join("InstallPack.apk"))?;
-    let zip = ZipArchive::new(file)?;
+    pub fn parse_apk(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let items = self.read_items()?;
+        for item in &items {
+            self.parse_item(item)?;
+        }
 
-    let mut apk = APK {
-        cc: cc.to_string(),
-        output_path: output_path.to_string(),
-        zip,
-    };
-
-    let items = apk.read_items()?;
-    for item in &items {
-        apk.parse_item(item)?;
+        Ok(())
     }
-
-    Ok(())
 }
