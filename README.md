@@ -39,4 +39,4 @@ cargo run update --release
 ```
 
 # TODOS
-- [ ] Download EN server assets
+- [x] Download EN server assets
