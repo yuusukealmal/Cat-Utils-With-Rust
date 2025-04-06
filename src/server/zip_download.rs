@@ -11,10 +11,23 @@ use crate::config::structs::{CloudFrontSign, ServerAPK};
 use crate::functions::logger::logger::{log, LogLevel};
 
 impl ServerAPK {
+    fn get_region_by_index(index: usize, region_counts: &Vec<i32>) -> Option<(String, usize)> {
+        let region_order = vec!["", "fr", "it", "de", "es", "th"];
+        let mut start = 0;
+        for (i, &end) in region_counts.iter().enumerate() {
+            if index < end as usize {
+                return Some((region_order[i].to_string(), index - start));
+            }
+            start = end as usize;
+        }
+        None
+    }
+
     pub async fn download_zip(
         &self,
         index: usize,
         version: &u32,
+        tsvs: &(Vec<String>, Vec<i32>),
     ) -> Result<(), Box<dyn std::error::Error>> {
         let cc = if &self.cc == "jp" {
             "battlecats"
@@ -22,7 +35,12 @@ impl ServerAPK {
             &format!("battlecats{}", self.cc)
         };
 
-        let version_fmt = if *version < 1000000 {
+        let (region, index) = match self.cc.as_str() {
+            "en" => Self::get_region_by_index(index, &tsvs.1).unwrap(),
+            _ => (self.cc.to_string(), index),
+        };
+
+        let mut version_fmt = if *version < 1000000 {
             format!("{}_{}_{}", cc, version, index)
         } else {
             format!(
@@ -33,6 +51,10 @@ impl ServerAPK {
                 version % 100
             )
         };
+
+        if self.cc.as_str() == "en" && !region.is_empty() {
+            version_fmt = format!("{}_{}", version_fmt, region);
+        }
 
         let cloudfront = CloudFrontSign::new();
 

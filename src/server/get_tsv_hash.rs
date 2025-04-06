@@ -1,20 +1,16 @@
-use io::{Cursor, Read};
-use std::{fs, io};
+use std::io::{Cursor, Read};
 
 use zip::ZipArchive;
 
 use crate::config::structs::ServerAPK;
 
 impl ServerAPK {
-    pub fn get_tsv_hash(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    pub fn get_tsv_hash(&mut self) -> Result<(Vec<String>, Vec<i32>), Box<dyn std::error::Error>> {
         let mut hashmap = Vec::new();
-
-        let file_data = fs::read(std::env::temp_dir().join("temp.xapk"))?;
-        let reader = Cursor::new(file_data);
-        let mut zip = ZipArchive::new(reader)?;
+        let mut region_cnt = vec![0; 6];
 
         let mut apk_data = Vec::new();
-        let mut apk_file = zip.by_name("InstallPack.apk")?;
+        let mut apk_file = self.zip.by_name("InstallPack.apk")?;
         apk_file.read_to_end(&mut apk_data)?;
 
         let reader = Cursor::new(apk_data);
@@ -49,6 +45,19 @@ impl ServerAPK {
                     .unwrap();
                 (index, num)
             });
+
+            for name in &tsv_files {
+                let region = name
+                    .split('_')
+                    .nth(0)
+                    .unwrap()
+                    .replace("assets/download", "");
+                let index = region_order
+                    .iter()
+                    .position(|&r| r == region)
+                    .unwrap_or(region_order.len());
+                region_cnt[index] += 1;
+            }
         } else {
             tsv_files.sort_by_key(|name| {
                 name.split('_')
@@ -74,6 +83,6 @@ impl ServerAPK {
             }
         }
 
-        Ok(hashmap)
+        Ok((hashmap, region_cnt))
     }
 }
