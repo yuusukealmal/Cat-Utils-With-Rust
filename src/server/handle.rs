@@ -2,7 +2,7 @@ use std::{ffi::OsStr, fs::File};
 
 use zip::ZipArchive;
 
-use super::server_parser;
+use crate::config::structs::ServerAPK;
 use crate::functions::file_selector::{self, file_dialog};
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::valid_apk::valid_pack::{valid_apk, valid_xapk};
@@ -62,10 +62,14 @@ pub async fn get_server_file(update: Option<bool>) -> Result<(), Box<dyn std::er
                     .ok_or("Error Country Code")?,
             };
 
-            let file = File::open(&apk)?;
-            let mut zip = ZipArchive::new(file)?;
+            let mut server = ServerAPK {
+                update,
+                cc: cc.to_string(),
+                output_path: output_path.to_string(),
+                zip: ZipArchive::new(File::open(apk)?)?,
+            };
 
-            server_parser::parse_server(update, cc, &output_path, &mut zip).await?;
+            server.parse_server().await?;
         }
         _ => {
             log(LogLevel::Error, "Unsupported file type.".to_string());

@@ -51,6 +51,13 @@ pub struct SaveParser {
     pub save_data: Vec<u8>,
 }
 
+pub struct ServerAPK {
+    pub update: Option<bool>,
+    pub cc: String,
+    pub output_path: String,
+    pub zip: ZipArchive<File>,
+}
+
 pub struct CloudFrontSign {
     pub(crate) cf_private_key: String,
     pub(crate) cf_key_pair_id: String,
