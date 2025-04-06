@@ -37,8 +37,7 @@ pub async fn check_version() -> Result<Vec<(String, String)>, Box<dyn std::error
     let mut result = vec![];
     let data_json: serde_json::Value = serde_json::from_str(&fs::read_to_string("data.json")?)?;
 
-    for cc in ["JP", "TW", "KR"] {
-        //pass "EN"
+    for cc in ["JP", "TW", "EN", "KR"] {
         let current_version = data_json[cc]["version"].as_u64().unwrap();
         let latest_version = requests_version(
             data_json[cc.to_uppercase()].as_object().unwrap()["version_url"]
