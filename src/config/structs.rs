@@ -63,8 +63,10 @@ pub struct CloudFrontSign {
     pub(crate) cf_key_pair_id: String,
 }
 
+#[allow(dead_code)]
 pub struct ServerItem {
     pub name: String,
     pub start: usize,
     pub arrange: usize,
+    pub output_path: PathBuf,
 }

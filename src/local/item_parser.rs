@@ -85,7 +85,17 @@ impl APK {
 
                 let data = &item_pack_data[content.start..content.start + content.arrange];
 
-                content.write_file(&self.cc, item, data)?;
+                let data = match item {
+                    "assets/ImageDataLocal" => data.to_vec(),
+                    _ => aes_decrypt::decrypt_cbc(self.cc.as_str(), data).map_err(|e| {
+                        std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            format!("Decrypt error: {:#?}", e),
+                        )
+                    })?,
+                };
+
+                content.write_file(data)?;
             } else {
                 log(
                     LogLevel::Error,

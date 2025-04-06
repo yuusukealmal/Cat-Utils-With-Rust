@@ -10,37 +10,6 @@ use crate::functions::logger::logger::{log, LogLevel};
 use crate::functions::utils::get_folder_name;
 use crate::functions::writer::writer::{create_dir, create_file};
 
-impl ServerItem {
-    fn from_line(line: &str) -> Result<Self, io::Error> {
-        let parts: Vec<&str> = line.split(',').collect();
-        if parts.len() == 3 {
-            let start = parts[1].parse::<usize>().map_err(|e| {
-                io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    format!("Failed to parse start: {}", e),
-                )
-            })?;
-            let arrange = parts[2].parse::<usize>().map_err(|e| {
-                io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    format!("Failed to parse arrange: {}", e),
-                )
-            })?;
-
-            Ok(ServerItem {
-                name: parts[0].to_string(),
-                start,
-                arrange,
-            })
-        } else {
-            Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "Invalid line format",
-            ))
-        }
-    }
-}
-
 impl ServerAPK {
     fn read_file_from_zip(
         &self,
@@ -98,21 +67,56 @@ impl ServerAPK {
                     )
                 })?;
 
-                for (i, line) in list_str.lines().enumerate().skip(1) {
-                    match ServerItem::from_line(line) {
-                        Ok(item) => {
-                            let content = &item_pack_data[item.start..item.start + item.arrange];
+                for (index, line) in list_str.lines().enumerate().skip(1) {
+                    let parts: Vec<&str> = line.split(',').collect();
+                    if parts.len() == 3 {
+                        let name = parts[0].to_string();
+                        let start = parts[1].parse::<usize>().map_err(|e| {
+                            io::Error::new(
+                                io::ErrorKind::InvalidData,
+                                format!("Failed to parse start: {}", e),
+                            )
+                        })?;
+                        let arrange = parts[2].parse::<usize>().map_err(|e| {
+                            io::Error::new(
+                                io::ErrorKind::InvalidData,
+                                format!("Failed to parse arrange: {}", e),
+                            )
+                        })?;
 
-                            let final_path = base_path.join(item_name.clone()).join(&item.name);
+                        let output_path = base_path.join(item_name.clone()).join(&name);
 
-                            item.write_file(&item_name, content, final_path)?;
+                        let content = ServerItem {
+                            name,
+                            start,
+                            arrange,
+                            output_path,
+                        };
+
+                        let data: Vec<u8>;
+
+                        if item_name.contains("ImageDataLocal") {
+                            data = item_pack_data[content.start..content.start + content.arrange]
+                                .to_vec();
+                        } else {
+                            data = aes_decrypt::decrypt_ecb(
+                                true,
+                                &item_pack_data[content.start..content.start + content.arrange],
+                            )
+                            .map_err(|e| {
+                                std::io::Error::new(
+                                    std::io::ErrorKind::Other,
+                                    format!("Decrypt error: {:#?}", e),
+                                )
+                            })?;
                         }
-                        Err(e) => {
-                            log(
-                                LogLevel::Error,
-                                format!("Invalid line format at line {}: {}", i + 1, e),
-                            );
-                        }
+
+                        content.write_file(data)?;
+                    } else {
+                        log(
+                            LogLevel::Error,
+                            format!("Invalid line format at line {}: {}", index + 1, line),
+                        );
                     }
                 }
             }
