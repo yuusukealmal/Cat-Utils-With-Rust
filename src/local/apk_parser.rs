@@ -19,7 +19,8 @@ impl APK {
     }
 
     pub fn parse_apk(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let items = self.read_items()?;
+        let mut items = self.read_items()?;
+        items.retain(|s| !s.contains("HtmlLocal"));
         for item in &items {
             self.parse_item(item)?;
         }
