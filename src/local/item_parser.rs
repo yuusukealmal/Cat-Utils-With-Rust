@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::fs;
 use std::io::{self, Read};
 use std::path::PathBuf;
 
@@ -101,6 +102,26 @@ impl APK {
                     LogLevel::Error,
                     format!("Invalid line format at line {}: {}", index + 1, line),
                 );
+            }
+        }
+
+        let files: Vec<&str> = list_str
+            .lines()
+            .skip(1)
+            .map(|line| line.split(',').next().unwrap())
+            .collect();
+
+        let folder = PathBuf::from(&self.output_path)
+            .join(get_folder_name(&self.cc))
+            .join("local")
+            .join(item.rsplit("/").next().unwrap());
+
+        for entry in fs::read_dir(folder)? {
+            let entry = entry?;
+            let file_name = entry.file_name().to_string_lossy().to_string();
+
+            if !files.contains(&file_name.as_str()) {
+                fs::remove_file(entry.path())?;
             }
         }
 

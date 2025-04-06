@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{self, Read};
 use std::path::PathBuf;
 
@@ -84,7 +84,7 @@ impl ServerAPK {
                             )
                         })?;
 
-                        let output_path = base_path.join(item_name.clone()).join(&name);
+                        let output_path = base_path.join(item_name.as_str()).join(&name);
 
                         let content = ServerItem {
                             name,
@@ -117,6 +117,27 @@ impl ServerAPK {
                             LogLevel::Error,
                             format!("Invalid line format at line {}: {}", index + 1, line),
                         );
+                    }
+                }
+
+                let files: Vec<&str> = list_str
+                    .lines()
+                    .skip(1)
+                    .map(|line| line.split(',').next().unwrap())
+                    .collect();
+
+                let folder = PathBuf::from(&self.output_path)
+                    .join(get_folder_name(&self.cc))
+                    .join("server")
+                    .join(item_name.as_str());
+
+                for entry in fs::read_dir(folder)? {
+                    let entry = entry?;
+                    let file_name = entry.file_name().to_string_lossy().to_string();
+
+                    if !files.contains(&file_name.as_str()) {
+                        fs::remove_file(entry.path())?;
+                        println!("remove: {}", file_name);
                     }
                 }
             }
