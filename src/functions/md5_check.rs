@@ -2,7 +2,6 @@ use md5;
 use std::fs::File;
 use std::io::{self, Read};
 
-#[allow(dead_code)]
 pub fn get_hash(data: impl AsRef<[u8]>) -> Result<String, io::Error> {
     let bytes = match data.as_ref() {
         path if std::path::Path::new(std::str::from_utf8(path).unwrap_or("")).exists() => {

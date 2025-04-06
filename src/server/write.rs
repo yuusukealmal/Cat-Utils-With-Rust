@@ -1,8 +1,9 @@
 use std::ffi::OsStr;
-use std::io;
+use std::{fs, io};
 
 use crate::config::structs::ServerItem;
 use crate::functions::json_prettier::indent_json;
+use crate::functions::md5_check::get_hash;
 use crate::functions::writer::writer::{create_dir, create_file};
 
 impl ServerItem {
@@ -19,6 +20,12 @@ impl ServerItem {
             std::io::Error::new(std::io::ErrorKind::InvalidInput, "Invalid file path")
         })?;
 
+        let existing_hash = if fs::metadata(fp_str).is_ok() {
+            get_hash(fp_str)?
+        } else {
+            String::new()
+        };
+
         if self.output_path.extension().and_then(OsStr::to_str) == Some("json")
             && !content.is_empty()
         {
@@ -33,7 +40,11 @@ impl ServerItem {
             content = indent_json(&mut json)?.into();
         }
 
-        create_file(&content, fp_str)?;
+        let current_hash = get_hash(&content)?;
+
+        if current_hash != existing_hash {
+            create_file(&content, fp_str)?;
+        }
 
         Ok(())
     }
