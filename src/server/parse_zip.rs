@@ -64,14 +64,14 @@ impl ServerAPK {
             .map(|name| name.replace(".list", ""))
             .collect();
 
+        let base_path = PathBuf::from(self.output_path.as_str())
+            .join(get_folder_name(&self.cc))
+            .join("server");
+
         for item_name in item_names {
             log(LogLevel::Info, format!("Start to Parse: {}", item_name));
             if item_name.contains(".ogg") || item_name.contains(".caf") {
-                let final_path = PathBuf::from(self.output_path.as_str())
-                    .join(get_folder_name(&self.cc))
-                    .join("server")
-                    .join("Audio")
-                    .join(item_name.clone());
+                let final_path = base_path.join("Audio").join(item_name.clone());
 
                 create_dir(final_path.parent().unwrap().to_str().unwrap())?;
 
@@ -103,11 +103,7 @@ impl ServerAPK {
                         Ok(item) => {
                             let content = &item_pack_data[item.start..item.start + item.arrange];
 
-                            let final_path = PathBuf::from(self.output_path.as_str())
-                                .join(get_folder_name(&self.cc))
-                                .join("server")
-                                .join(item_name.clone())
-                                .join(&item.name);
+                            let final_path = base_path.join(item_name.clone()).join(&item.name);
 
                             item.write_file(&item_name, content, final_path)?;
                         }
