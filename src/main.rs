@@ -12,6 +12,7 @@ mod local;
 mod placement;
 mod seed;
 mod server;
+mod tracker;
 mod update;
 
 #[tokio::main]
@@ -32,7 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         loop {
             let mut input = String::new();
             println!(
-                "請選擇項目: \n1. 獲得活動檔案\n2. 取得公告\n3. 拆包apk\n4. 取得伺服器檔案\n5. 解密bcuzip\n6. 取得種子碼\n7. 退出"
+                "請選擇項目: \n1. 獲得活動檔案\n2. 取得公告\n3. 拆包apk\n4. 取得伺服器檔案\n5. 解密bcuzip\n6. 取得種子碼\n7. 查看序列\n8. 退出"
             );
             io::stdin().read_line(&mut input).expect("讀取失敗");
             let number: u32 = input.trim().parse().expect("輸入錯誤");
@@ -93,6 +94,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     );
                 }
                 7 => {
+                    let t = std::time::Instant::now();
+                    tracker::handle::get_track().await?;
+                    println!(
+                        "\n{} 花費: {}\n",
+                        "序列下載完成".green(),
+                        count_duration(t.elapsed())
+                    );
+                }
+                8 => {
                     println!(
                         "\n{} 使用時間: {}",
                         "謝謝使用".green(),

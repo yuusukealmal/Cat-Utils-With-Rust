@@ -17,4 +17,24 @@ pub mod logger {
             LogLevel::Debug => println!("{} {}", "[Debug]".blue(), message),
         }
     }
+
+    #[allow(dead_code)]
+    pub enum RareLevel {
+        Noamal,
+        EX,
+        Rare,
+        SuperRare,
+        UberRare,
+        Legend,
+    }
+    pub fn log_gatya(level: RareLevel, message: String) {
+        match level {
+            RareLevel::Noamal => println!("{}", message),
+            RareLevel::EX => println!("{}", message.yellow()),
+            RareLevel::Rare => println!("{}", message.green()),
+            RareLevel::SuperRare => println!("{}", message.blue()),
+            RareLevel::UberRare => println!("{}", message.magenta()),
+            RareLevel::Legend => println!("{}", message.red()),
+        }
+    }
 }

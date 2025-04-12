@@ -44,3 +44,36 @@ pub fn SERVER_ASSETS_ZIP(cc: &str, version: &str) -> String {
         cc, version
     )
 }
+
+#[allow(non_snake_case)]
+pub fn TRACK_UNITBUY(cc: &str) -> String {
+    format!(
+        "https://raw.githubusercontent.com/yuusukealmal/Cat-data/refs/heads/main/Data/local/jp.co.ponos.battlecats{}/DataLocal/unitbuy.csv",
+        cc
+    )
+}
+
+#[allow(non_snake_case)]
+pub fn TRACK_GATYA_SET(cc: &str) -> String {
+    format!(
+        "https://raw.githubusercontent.com/yuusukealmal/Cat-data/refs/heads/main/Data/local/jp.co.ponos.battlecats{}/DataLocal/GatyaDataSetR1.csv",
+        cc
+    )
+}
+
+#[allow(non_snake_case)]
+pub fn TRACK_EVENT_DATA(cc: &str) -> String {
+    format!(
+        "https://raw.githubusercontent.com/yuusukealmal/Cat-data/refs/heads/main/Data/event/{}_gatya.tsv",
+        cc.to_uppercase()
+    )
+}
+
+#[allow(non_snake_case)]
+pub fn TRACK_UNIT_EXPLANATION(cc: &str, id: u32) -> String {
+    let cc_display = if cc == "jp" { "ja" } else { cc };
+    format!(
+        "https://raw.githubusercontent.com/yuusukealmal/Cat-data/refs/heads/main/Data/local/jp.co.ponos.battlecats{}/resLocal/Unit_Explanation{}_{}.csv",
+        cc, id, cc_display
+    )
+}

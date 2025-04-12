@@ -70,3 +70,17 @@ pub struct ServerItem {
     pub arrange: usize,
     pub output_path: PathBuf,
 }
+
+#[derive(Debug, Clone)]
+pub struct EventData {
+    pub cc: Option<String>,
+    pub id: u32,
+    pub rare: u32,
+    pub super_rare: u32,
+    pub uber_rare: u32,
+    pub legend: u32,
+    pub banner_text: String,
+    pub force: bool,
+    pub gatya_data: Option<String>,
+    pub unit_buy: Option<String>,
+}
