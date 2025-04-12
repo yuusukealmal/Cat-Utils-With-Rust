@@ -41,3 +41,4 @@ cargo run update --release
 # TODOS
 - [x] Download EN server assets
 - [x] Remove File not in Local
+- [ ] Finish Guaranteed Tracker Logic
