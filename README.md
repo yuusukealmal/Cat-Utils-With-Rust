@@ -42,3 +42,6 @@ cargo run update --release
 - [x] Download EN server assets
 - [x] Remove File not in Local
 - [ ] Finish Guaranteed Tracker Logic
+
+# Known Issue
+- [ ] Error Algorithm When Changing Track
