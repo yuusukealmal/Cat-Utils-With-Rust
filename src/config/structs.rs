@@ -75,12 +75,21 @@ pub struct ServerItem {
 pub struct EventData {
     pub cc: Option<String>,
     pub id: u32,
-    pub rare: u32,
+    pub _rare: u32,
     pub super_rare: u32,
     pub uber_rare: u32,
     pub legend: u32,
     pub banner_text: String,
-    pub force: bool,
+    pub guarante: bool,
     pub gatya_data: Option<String>,
     pub unit_buy: Option<String>,
+    pub cat_ids: Option<Vec<Vec<(i32, String)>>>,
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct Cat {
+    pub id: i32,
+    pub name: String,
+    pub rarity: u32,
+    pub seed: (u32, u32),
 }

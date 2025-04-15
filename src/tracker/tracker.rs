@@ -1,41 +1,78 @@
-use super::rand::{get_rarity_id, rand};
-use crate::config::structs::EventData;
+use super::rand::rand;
+use crate::config::structs::{Cat, EventData};
 use crate::functions::logger::logger::{log_gatya, RareLevel};
 
 impl EventData {
-    pub async fn print_track(&self, mut seed: u32) -> Result<(), Box<dyn std::error::Error>> {
-        let cats = self.get_cat_ids().await?;
+    fn fetch(&self, seed: u32) -> Result<Cat, Box<dyn std::error::Error>> {
+        let result_first = rand(seed)?;
+        let rarity_id = self.get_rarity_id(result_first.1);
 
-        for num in 0..15 {
-            let result_first = rand(seed)?;
-            let rarity_id = get_rarity_id(result_first.1);
+        let result_second = rand(result_first.0)?;
+        let cats = self
+            .cat_ids
+            .as_ref()
+            .unwrap()
+            .get(rarity_id as usize)
+            .unwrap();
+        let id = cats[result_second.0 as usize % cats.len()].clone();
 
-            let result_second = rand(result_first.0)?;
+        Ok(Cat {
+            id: id.0,
+            name: id.1.clone(),
+            rarity: rarity_id,
+            seed: (result_first.0, result_second.0),
+        })
+    }
 
-            let rarity_cats = &cats[rarity_id as usize];
-            let rarity_len = &rarity_cats.len();
-            let modsize = result_second.0 as usize % rarity_len;
+    pub async fn print_track(&self, seed: u32) -> Result<(), Box<dyn std::error::Error>> {
+        let mut seed1 = seed;
+        let mut seed2 = rand(seed)?.0;
+        let mut track1 = vec![];
+        let mut track2 = vec![];
 
-            let message = format!(
-                "Len: {} Rarity_Seed: {} Rarity: {} Mod: {}",
-                rarity_len, result_first.1, rarity_id, modsize
-            );
+        for _ in 0..30 {
+            track1.push(self.fetch(seed1)?);
+            seed1 = track1.last().unwrap().seed.1;
 
-            match rarity_id {
-                5 => log_gatya(RareLevel::Legend, message),
-                4 => log_gatya(RareLevel::UberRare, message),
-                3 => log_gatya(RareLevel::SuperRare, message),
-                2 => log_gatya(RareLevel::Rare, message),
-                1 => log_gatya(RareLevel::EX, message),
-                _ => log_gatya(RareLevel::Noamal, message),
+            track2.push(self.fetch(seed2)?);
+            seed2 = track2.last().unwrap().seed.1;
+        }
+
+        let mut result = vec![track1[0].clone()];
+        let mut index = 1;
+        let mut is_track1 = true;
+
+        while result.len() < 10 {
+            let (current, previous, alt_track) = if is_track1 {
+                (&track1[index], &track1[index - 1], &track2)
+            } else {
+                (&track2[index], &track2[index - 1], &track1)
+            };
+
+            if current.id == previous.id && current.rarity == 2 {
+                index += if is_track1 { 1 } else { 2 };
+                if index < alt_track.len() {
+                    result.push(alt_track[index].clone());
+                    is_track1 = !is_track1;
+                }
+            } else {
+                result.push(current.clone());
+                index += 1;
             }
+        }
 
-            let id = &rarity_cats[modsize];
-            println!("{:?} {:?}", result_first, result_second);
-            println!("No.{:<4} ID:{:<6} Name: {}", num + 1, id.0, id.1);
-            println!();
-
-            seed = result_second.0;
+        for (i, cat) in result.iter().enumerate() {
+            let msg = format!("Seed: {:?} Rarity: {}", cat.seed, cat.rarity);
+            let rarity = match cat.rarity {
+                5 => RareLevel::Legend,
+                4 => RareLevel::UberRare,
+                3 => RareLevel::SuperRare,
+                2 => RareLevel::Rare,
+                1 => RareLevel::EX,
+                _ => RareLevel::Normal,
+            };
+            log_gatya(rarity, msg);
+            println!("No.{:<4} ID:{:<6} Name: {}\n", i + 1, cat.id, cat.name);
         }
 
         Ok(())

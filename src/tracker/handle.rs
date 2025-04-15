@@ -1,9 +1,9 @@
 use std::io;
+use colored::Colorize;
 
 use crate::functions::logger::logger::{log, LogLevel};
 use crate::seed::handle::get_seed;
 use crate::tracker::event_info_getter::file_getter::{event_info, gatya_info};
-use colored::Colorize;
 
 pub async fn get_track() -> Result<(), Box<dyn std::error::Error>> {
     let mut input = String::new();
@@ -50,7 +50,7 @@ pub async fn get_track() -> Result<(), Box<dyn std::error::Error>> {
 
     input.clear();
     for (index, event) in event_data.iter().enumerate() {
-        match event.force {
+        match event.guarante {
             true => println!(
                 "{} {}",
                 index,
@@ -69,6 +69,7 @@ pub async fn get_track() -> Result<(), Box<dyn std::error::Error>> {
         selected.cc = Some(cc.to_string());
         selected.unit_buy = Some(unitbuy_data);
         selected.gatya_data = Some(gatya_data);
+        selected.cat_ids = Some(selected.get_cat_ids().await?);
 
         selected.print_track(seed).await?;
     } else {

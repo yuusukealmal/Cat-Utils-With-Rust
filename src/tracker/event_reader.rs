@@ -1,5 +1,3 @@
-use std::io::Cursor;
-
 use chrono::{Local, NaiveDateTime};
 
 use crate::config::structs::EventData;
@@ -26,7 +24,7 @@ pub fn get_event_lists(events: String) -> Result<Vec<EventData>, Box<dyn std::er
 
         let start_str = format!("{}{}", start_date, start_time);
         let end_str = format!("{}{}", end_date, end_time);
-        let start = NaiveDateTime::parse_from_str(&start_str, "%Y%m%d%H%M")?;
+        let _start = NaiveDateTime::parse_from_str(&start_str, "%Y%m%d%H%M")?;
         let end = NaiveDateTime::parse_from_str(&end_str, "%Y%m%d%H%M")?;
         let now = Local::now().naive_local();
 
@@ -63,14 +61,15 @@ pub fn get_event_lists(events: String) -> Result<Vec<EventData>, Box<dyn std::er
             let event_struct = EventData {
                 cc: None,
                 id: gatya_id,
-                rare: rare_chance,
+                _rare: rare_chance,
                 super_rare: super_rare_chance,
                 uber_rare: uber_rare_chance,
                 legend: legend_rare_chance,
                 banner_text,
-                force: force,
+                guarante: force,
                 gatya_data: None,
                 unit_buy: None,
+                cat_ids: None,
             };
 
             current_events.push(event_struct);
