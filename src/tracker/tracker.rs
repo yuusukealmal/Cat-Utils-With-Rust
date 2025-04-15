@@ -52,7 +52,12 @@ impl EventData {
             if current.id == previous.id && current.rarity == 2 {
                 index += if is_track1 { 1 } else { 2 };
                 if index < alt_track.len() {
-                    result.push(alt_track[index].clone());
+                    result.push(Cat {
+                        id: 0,
+                        name: "Unknown".to_string(),
+                        rarity: 0,
+                        seed: (0, 0),
+                    }); //alt_track[index].clone()
                     is_track1 = !is_track1;
                 }
             } else {
