@@ -10,8 +10,8 @@ pub mod file_getter {
         let res_path = PathBuf::from(std::env::current_dir()?)
             .join("Data")
             .join(get_folder_name(cc))
-            .join("Local")
-            .join("resLocal");
+            .join("local")
+            .join("DataLocal");
 
         let unitbuy = res_path.join("unitbuy.csv");
         let gatya_data_set = res_path.join("GatyaDataSetR1.csv");
