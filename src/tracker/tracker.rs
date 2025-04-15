@@ -2,24 +2,35 @@ use super::rand::rand;
 use crate::config::structs::{Cat, EventData};
 use crate::functions::logger::logger::{log_gatya, RareLevel};
 
+impl Cat {
+    fn unknown() -> Self {
+        Self {
+            id: 0,
+            name: "Unknown".to_string(),
+            rarity: RareLevel::Normal,
+            seed: (0, 0),
+        }
+    }
+}
+
 impl EventData {
     fn fetch(&self, seed: u32) -> Result<Cat, Box<dyn std::error::Error>> {
         let result_first = rand(seed)?;
-        let rarity_id = self.get_rarity_id(result_first.1);
+        let rarity = self.get_rarity_id(result_first.1);
 
         let result_second = rand(result_first.0)?;
         let cats = self
             .cat_ids
             .as_ref()
             .unwrap()
-            .get(rarity_id as usize)
+            .get(rarity.clone() as usize)
             .unwrap();
         let id = cats[result_second.0 as usize % cats.len()].clone();
 
         Ok(Cat {
             id: id.0,
-            name: id.1.clone(),
-            rarity: rarity_id,
+            name: id.1,
+            rarity,
             seed: (result_first.0, result_second.0),
         })
     }
@@ -49,15 +60,10 @@ impl EventData {
                 (&track2[index], &track2[index - 1], &track1)
             };
 
-            if current.id == previous.id && current.rarity == 2 {
+            if current.id == previous.id && current.rarity == RareLevel::Rare {
                 index += if is_track1 { 1 } else { 2 };
                 if index < alt_track.len() {
-                    result.push(Cat {
-                        id: 0,
-                        name: "Unknown".to_string(),
-                        rarity: 0,
-                        seed: (0, 0),
-                    }); //alt_track[index].clone()
+                    result.push(Cat::unknown()); //alt_track[index].clone()
                     is_track1 = !is_track1;
                 }
             } else {
@@ -67,16 +73,9 @@ impl EventData {
         }
 
         for (i, cat) in result.iter().enumerate() {
-            let msg = format!("Seed: {:?} Rarity: {}", cat.seed, cat.rarity);
-            let rarity = match cat.rarity {
-                5 => RareLevel::Legend,
-                4 => RareLevel::UberRare,
-                3 => RareLevel::SuperRare,
-                2 => RareLevel::Rare,
-                1 => RareLevel::EX,
-                _ => RareLevel::Normal,
-            };
-            log_gatya(rarity, msg);
+            let msg = format!("Seed: {:?} Rarity: {:?}", cat.seed, cat.rarity);
+
+            log_gatya(&cat.rarity, msg);
             println!("No.{:<4} ID:{:<6} Name: {}\n", i + 1, cat.id, cat.name);
         }
 

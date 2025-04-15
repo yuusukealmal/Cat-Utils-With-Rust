@@ -2,6 +2,8 @@ use std::{fs::File, path::PathBuf};
 
 use zip::ZipArchive;
 
+use crate::functions::logger::logger::RareLevel;
+
 pub struct BCUZIP {
     pub title: String,
     pub length: u32,
@@ -90,6 +92,6 @@ pub struct EventData {
 pub struct Cat {
     pub id: i32,
     pub name: String,
-    pub rarity: u32,
+    pub rarity: RareLevel,
     pub seed: (u32, u32),
 }

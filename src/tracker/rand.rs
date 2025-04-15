@@ -1,4 +1,5 @@
 use crate::config::structs::EventData;
+use crate::functions::logger::logger::RareLevel;
 
 pub fn rand(mut seed: u32) -> Result<(u32, u32), Box<dyn std::error::Error>> {
     fn xor_shift(mut seed: u32) -> u32 {
@@ -14,7 +15,7 @@ pub fn rand(mut seed: u32) -> Result<(u32, u32), Box<dyn std::error::Error>> {
 }
 
 impl EventData {
-    pub fn get_rarity_id(&self, mut seed: u32) -> u32 {
+    pub fn get_rarity_id(&self, mut seed: u32) -> RareLevel {
         const MAX: u32 = 10000;
         let legend_chance: u32 = MAX - self.legend;
         let uber_chance: u32 = legend_chance - self.uber_rare;
@@ -25,13 +26,13 @@ impl EventData {
         }
 
         if seed >= legend_chance {
-            return 5;
+            return RareLevel::Legend;
         } else if seed >= uber_chance {
-            return 4;
+            return RareLevel::UberRare;
         } else if seed >= super_rare_chance {
-            return 3;
+            return RareLevel::SuperRare;
         } else {
-            return 2;
+            return RareLevel::Rare;
         }
     }
 }

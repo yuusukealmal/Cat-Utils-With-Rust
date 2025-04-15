@@ -18,6 +18,7 @@ pub mod logger {
         }
     }
 
+    #[derive(PartialEq, Clone, Debug)]
     #[allow(dead_code)]
     pub enum RareLevel {
         Normal,
@@ -27,7 +28,7 @@ pub mod logger {
         UberRare,
         Legend,
     }
-    pub fn log_gatya(level: RareLevel, message: String) {
+    pub fn log_gatya(level: &RareLevel, message: String) {
         match level {
             RareLevel::Normal => println!("{}", message),
             RareLevel::EX => println!("{}", message.yellow()),
