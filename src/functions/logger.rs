@@ -20,7 +20,7 @@ pub mod logger {
 
     #[allow(dead_code)]
     pub enum RareLevel {
-        Noamal,
+        Normal,
         EX,
         Rare,
         SuperRare,
@@ -29,7 +29,7 @@ pub mod logger {
     }
     pub fn log_gatya(level: RareLevel, message: String) {
         match level {
-            RareLevel::Noamal => println!("{}", message),
+            RareLevel::Normal => println!("{}", message),
             RareLevel::EX => println!("{}", message.yellow()),
             RareLevel::Rare => println!("{}", message.green()),
             RareLevel::SuperRare => println!("{}", message.blue()),
