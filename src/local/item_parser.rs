@@ -41,6 +41,11 @@ impl APK {
             }
         };
 
+        if list_str == "0\n" {
+            println!("{} is empty", item);
+            return Ok(());
+        }
+
         let mut item_pack = self.zip.by_name(&format!("{}.pack", item))?;
         let mut item_pack_data = Vec::new();
         item_pack.read_to_end(&mut item_pack_data)?;
